@@ -1,0 +1,273 @@
+.app {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.navbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 2rem;
+	background-color: #fff;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.navbar-brand {
+	font-size: 1.25rem;
+	font-weight: 600;
+	text-decoration: none;
+	color: #1a1a1a;
+}
+
+.navbar-brand:hover {
+	color: #555;
+}
+
+.navbar-links {
+	display: flex;
+	gap: 1.5rem;
+	list-style: none;
+}
+
+.nav-link {
+	text-decoration: none;
+	color: #555;
+	font-weight: 500;
+}
+
+.nav-link:hover {
+	color: #1a1a1a;
+}
+
+.nav-link.active {
+	color: #1a1a1a;
+	border-bottom: 2px solid #1a1a1a;
+}
+
+.main-content {
+	flex: 1;
+	padding: 2rem;
+	max-width: 960px;
+	margin: 0 auto;
+	width: 100%;
+}
+
+.page h1 {
+	margin-bottom: 0.5rem;
+}
+
+.page p {
+	color: #555;
+}
+
+.home-intro {
+	display: flex;
+	align-items: flex-start;
+	gap: 1.5rem;
+	margin-top: 40px;
+}
+
+.home-profile-photo {
+	width: 140px;
+	height: 186px;
+	object-fit: cover;
+	border-radius: 8px;
+	border: 1px solid #e0e0e0;
+	flex-shrink: 0;
+}
+
+.home-bio {
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #444;
+	margin: 0;
+}
+
+.home-featured {
+	margin-top: 2.5rem;
+}
+
+.home-featured-title {
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+	color: #1a1a1a;
+}
+
+.featured-projects-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1rem;
+}
+
+.featured-project-card {
+	display: block;
+}
+
+@media (max-width: 720px) {
+	.home-intro {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.featured-projects-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.home-profile-photo {
+		border-color: #3a3a36;
+	}
+
+	.home-bio {
+		color: #b4b2a9;
+	}
+
+	.home-featured-title {
+		color: #e8e6de;
+	}
+}
+
+.projects-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-top: 1.5rem;
+}
+
+.project-card {
+	width: 100%;
+	padding: 1.25rem;
+	background-color: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+	transform: scale(1.03);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.project-card-highlight {
+	box-shadow: 0 0 0 2px #7f77dd;
+	transition: box-shadow 0.3s ease;
+}
+
+.project-card-title {
+	font-size: 1rem;
+	font-weight: 700;
+	margin-bottom: 0.5rem;
+	color: #1a1a1a;
+}
+
+.project-card-description {
+	font-size: 0.875rem;
+	color: #888;
+	line-height: 1.5;
+}
+
+.project-graph-wrapper {
+	position: relative;
+	margin-top: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.graph-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 1.5rem;
+	list-style: none;
+	margin-bottom: 0.75rem;
+	padding: 0;
+}
+
+.graph-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8125rem;
+	color: #555;
+}
+
+.graph-legend-swatch {
+	width: 14px;
+	height: 14px;
+	border-radius: 4px;
+	border: 1px solid;
+	flex-shrink: 0;
+}
+
+.graph-legend-label {
+	line-height: 1;
+}
+
+.project-graph-container {
+	width: 100%;
+	height: 520px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background-color: #fff;
+	overflow: hidden;
+}
+
+.project-graph-canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+	touch-action: none;
+}
+
+.graph-tooltip {
+	position: fixed;
+	z-index: 100;
+	max-width: 200px;
+	padding: 8px 12px;
+	background-color: #fff;
+	border: 0.5px solid #d0d0d0;
+	border-radius: 8px;
+	pointer-events: none;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.graph-tooltip strong {
+	display: block;
+	font-size: 0.8125rem;
+	margin-bottom: 0.25rem;
+	color: #1a1a1a;
+}
+
+.graph-tooltip p {
+	font-size: 0.8125rem;
+	font-weight: 400;
+	color: #555;
+	line-height: 1.4;
+	margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	.project-graph-container {
+		background-color: #1e1e1c;
+		border-color: #3a3a36;
+	}
+
+	.graph-tooltip {
+		background-color: #2a2a28;
+		border-color: #4a4a46;
+	}
+
+	.graph-tooltip strong {
+		color: #e8e6de;
+	}
+
+	.graph-tooltip p {
+		color: #b4b2a9;
+	}
+
+	.graph-legend-item {
+		color: #b4b2a9;
+	}
+}
