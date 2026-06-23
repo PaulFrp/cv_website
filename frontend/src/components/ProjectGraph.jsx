@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CATEGORIES, graphEdges, graphNodes, LEGEND_ITEMS } from "../data/projectGraph";
 
 const MIN_WIDTH = 72;
@@ -21,14 +22,6 @@ const BOX_REPULSION = 0.45;
 const OVERLAP_CORRECTION = 0.55;
 const CLICK_MOVE_THRESHOLD = 6;
 const DOUBLE_CLICK_MS = 400;
-
-function scrollToProjectCard(cardId) {
-	const card = document.getElementById(`project-${cardId}`);
-	if (!card) return;
-	card.scrollIntoView({ behavior: "smooth", block: "start" });
-	card.classList.add("project-card-highlight");
-	window.setTimeout(() => card.classList.remove("project-card-highlight"), 1500);
-}
 
 function isDarkMode() {
 	return window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -306,6 +299,7 @@ function drawGraph(ctx, nodes, edges, width, height, hoveredId, dark) {
 }
 
 function ProjectGraph() {
+	const navigate = useNavigate();
 	const containerRef = useRef(null);
 	const canvasRef = useRef(null);
 	const simRef = useRef(null);
@@ -471,7 +465,7 @@ function ProjectGraph() {
 						now - lastClick.time < DOUBLE_CLICK_MS
 					) {
 						if (node.cardId) {
-							scrollToProjectCard(node.cardId);
+							navigate(`/projects/${node.cardId}`);
 						}
 						lastClickRef.current = { nodeId: null, time: 0 };
 					} else {
@@ -526,7 +520,7 @@ function ProjectGraph() {
 			canvas.removeEventListener("pointerleave", onPointerLeave);
 			darkQuery.removeEventListener("change", onDarkChange);
 		};
-	}, []);
+	}, [navigate]);
 
 	return (
 		<div className="project-graph-wrapper">
