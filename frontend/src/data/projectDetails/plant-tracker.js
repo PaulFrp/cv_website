@@ -100,6 +100,17 @@ raw /= 10;`,
 		gap: "Current gap — deep sleep not yet implemented. The loop currently delays 3600 seconds between readings. This keeps the WiFi stack active and the ESP32 fully powered the entire time, burning ~80mA continuously. Deep sleep is the next firmware milestone: wake on RTC timer, read sensors, transmit, sleep.",
 	},
 	hardwareAssembly: {
+		photos: [
+			{ src: "/humidity/1.jpg", alt: "Smart Plant Monitor hardware assembly step 1" },
+			{ src: "/humidity/2.jpg", alt: "Smart Plant Monitor hardware assembly step 2" },
+			{ src: "/humidity/3.jpg", alt: "Smart Plant Monitor hardware assembly step 3" },
+			{ src: "/humidity/4.jpg", alt: "Smart Plant Monitor hardware assembly step 4" },
+			{ src: "/humidity/5.jpg", alt: "Smart Plant Monitor hardware assembly step 5" },
+			{ src: "/humidity/6.jpg", alt: "Smart Plant Monitor hardware assembly step 6" },
+			{ src: "/humidity/7.jpg", alt: "Smart Plant Monitor hardware assembly step 7" },
+			{ src: "/humidity/8.jpg", alt: "Smart Plant Monitor hardware assembly step 8" },
+			{ src: "/humidity/9.jpg", alt: "Smart Plant Monitor hardware assembly step 9" },
+		],
 		solderingLessons: {
 			title: "Lessons from soldering",
 			intro:

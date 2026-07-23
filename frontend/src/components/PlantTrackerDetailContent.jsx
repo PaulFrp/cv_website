@@ -1,4 +1,36 @@
+import { useMemo, useState } from "react";
+
 function PlantTrackerDetailContent({ detail }) {
+	const photos = detail.hardwareAssembly.photos ?? [];
+	const visibleCount = 4;
+	const [carouselStart, setCarouselStart] = useState(0);
+	const [activePhotoIndex, setActivePhotoIndex] = useState(null);
+
+	const shiftCarousel = (direction) => {
+		if (photos.length === 0) return;
+		setCarouselStart(
+			(prev) => (prev + direction + photos.length) % photos.length
+		);
+	};
+
+	const shiftActivePhoto = (direction) => {
+		if (photos.length === 0) return;
+		setActivePhotoIndex((prev) => {
+			if (prev === null) return null;
+			const next = (prev + direction + photos.length) % photos.length;
+			setCarouselStart(next);
+			return next;
+		});
+	};
+
+	const visiblePhotos = useMemo(() => {
+		if (photos.length === 0) return [];
+		return Array.from({ length: Math.min(visibleCount, photos.length) }, (_, i) => {
+			const index = (carouselStart + i) % photos.length;
+			return { ...photos[index], index };
+		});
+	}, [carouselStart, photos]);
+
 	return (
 		<>
 			<div className="detail-meta">
@@ -105,6 +137,39 @@ function PlantTrackerDetailContent({ detail }) {
 
 			<section className="detail-section">
 				<h2>Hardware assembly</h2>
+				{photos.length > 0 && (
+					<div className="detail-photo-carousel" aria-label="Hardware assembly photos">
+						<button
+							type="button"
+							className="detail-carousel-arrow"
+							onClick={() => shiftCarousel(-1)}
+							aria-label="Previous photos"
+						>
+							&#8249;
+						</button>
+						<div className="detail-photo-row">
+							{visiblePhotos.map((photo) => (
+								<button
+									type="button"
+									key={photo.src}
+									className="detail-photo-card detail-photo-button"
+									onClick={() => setActivePhotoIndex(photo.index)}
+									aria-label={`Open ${photo.alt}`}
+								>
+									<img src={photo.src} alt={photo.alt} className="detail-photo" />
+								</button>
+							))}
+						</div>
+						<button
+							type="button"
+							className="detail-carousel-arrow"
+							onClick={() => shiftCarousel(1)}
+							aria-label="Next photos"
+						>
+							&#8250;
+						</button>
+					</div>
+				)}
 				<article className="detail-challenge">
 					<h3>{detail.hardwareAssembly.solderingLessons.title}</h3>
 					<p>{detail.hardwareAssembly.solderingLessons.intro}</p>
@@ -165,6 +230,51 @@ function PlantTrackerDetailContent({ detail }) {
 					))}
 				</ul>
 			</section>
+
+			{activePhotoIndex !== null && (
+				<div
+					className="detail-photo-modal"
+					role="dialog"
+					aria-modal="true"
+					aria-label="Expanded hardware assembly photo"
+					onClick={() => setActivePhotoIndex(null)}
+				>
+					<div
+						className="detail-photo-modal-content"
+						onClick={(event) => event.stopPropagation()}
+					>
+						<button
+							type="button"
+							className="detail-carousel-arrow detail-modal-arrow"
+							onClick={() => shiftActivePhoto(-1)}
+							aria-label="Previous photo"
+						>
+							&#8249;
+						</button>
+						<img
+							src={photos[activePhotoIndex].src}
+							alt={photos[activePhotoIndex].alt}
+							className="detail-photo-large"
+						/>
+						<button
+							type="button"
+							className="detail-carousel-arrow detail-modal-arrow"
+							onClick={() => shiftActivePhoto(1)}
+							aria-label="Next photo"
+						>
+							&#8250;
+						</button>
+						<button
+							type="button"
+							className="detail-modal-close"
+							onClick={() => setActivePhotoIndex(null)}
+							aria-label="Close enlarged photo"
+						>
+							&times;
+						</button>
+					</div>
+				</div>
+			)}
 		</>
 	);
 }

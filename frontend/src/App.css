@@ -359,6 +359,105 @@
 	text-align: center;
 }
 
+.detail-photo-carousel {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.detail-photo-row {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 0.75rem;
+	flex: 1;
+}
+
+.detail-carousel-arrow {
+	width: 2rem;
+	height: 2rem;
+	border: 1px solid #d0d0d0;
+	border-radius: 999px;
+	background-color: #fff;
+	color: #333;
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.detail-carousel-arrow:hover {
+	background-color: #f4f4f4;
+}
+
+.detail-photo-card {
+	margin: 0;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	overflow: hidden;
+	background-color: #fff;
+}
+
+.detail-photo-button {
+	padding: 0;
+	cursor: zoom-in;
+}
+
+.detail-photo {
+	display: block;
+	width: 100%;
+	height: 150px;
+	object-fit: cover;
+}
+
+.detail-photo-modal {
+	position: fixed;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.78);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 2rem;
+}
+
+.detail-photo-modal-content {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	max-width: 100%;
+}
+
+.detail-modal-arrow {
+	width: 2.5rem;
+	height: 2.5rem;
+	font-size: 1.5rem;
+}
+
+.detail-photo-large {
+	max-width: min(980px, 80vw);
+	max-height: 80vh;
+	object-fit: contain;
+	border-radius: 8px;
+	border: 1px solid #d0d0d0;
+	background-color: #fff;
+}
+
+.detail-modal-close {
+	position: absolute;
+	top: -1.75rem;
+	right: -0.25rem;
+	background: transparent;
+	border: none;
+	color: #fff;
+	font-size: 2rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
 .detail-subsection {
 	margin-top: 1rem;
 	padding-top: 1rem;
@@ -483,6 +582,26 @@
 	.detail-architecture-image {
 		border-color: #3a3a36;
 		background-color: #2a2a28;
+	}
+
+	.detail-photo-card {
+		background-color: #2a2a28;
+		border-color: #3a3a36;
+	}
+
+	.detail-carousel-arrow {
+		background-color: #2a2a28;
+		border-color: #4a4a46;
+		color: #e8e6de;
+	}
+
+	.detail-carousel-arrow:hover {
+		background-color: #353532;
+	}
+
+	.detail-photo-large {
+		border-color: #4a4a46;
+		background-color: #1e1e1c;
 	}
 
 	.detail-subsection {
