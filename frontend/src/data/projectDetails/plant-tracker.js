@@ -6,15 +6,16 @@ export const plantTrackerDetail = {
 		"Embedded firmware · Hardware design · Soldering · 3D printing · REST API integration",
 	status: "Hardware complete, firmware working, case design in progress",
 	overview: [
-		"A fully autonomous IoT plant monitoring device built from individual electronic components. The device measures soil moisture, air temperature, air humidity, and ambient light, and sends readings over WiFi to a centralized API every hour. The project covers the full stack — from component selection and schematic design, to soldering, firmware, data pipeline, and 3D-printed enclosure.",
-		"The goal was not to buy a ready-made sensor kit, but to understand every layer of the system from the ground up: why each component was chosen, how they communicate, how the device stays alive on battery, and how the data flows to a dashboard.",
+		"The goal of this project was to build a fully autonomous plant monitoring device. To achieve this, I used standalone electronic components and assembled them together. The device measures soil moisture, air temperature, air humidity, and light.",
+		"It then sends the recorded data over WiFi to an API that I created on my Xp-tracker website to display the data on a dashboard updated every hour. The project covers the full stack from component selection and schematic design, to soldering, firmware, data pipeline, and 3D-printed enclosure.",
+		"The goal was not to buy a ready-made sensor kit, but to understand every layer of the system from the ground up: why choose each component, how they communicate, how the device stays alive on battery, and how the data flows to a dashboard.",
 	],
 	motivation: [
 		"Most commercial plant monitors are either too expensive for scaling across multiple plants, or too closed to integrate into a custom dashboard. I wanted something I could replicate for under €25 per unit, fully understand, and connect to my own backend.",
-		"The secondary motivation was to combine skills I had been building separately — embedded programming, soldering, 3D printing — into one cohesive project with a real, useful output.",
+		"The secondary motivation was to combine skills I had been building separately: embedded programming, soldering, 3D printing into one cohesive project with a real, useful output.",
 	],
 	architectureImage: "/schematic.png",
-	architectureCaption: "System architecture — power chain, sensors, and WiFi data flow",
+	architectureCaption: "System architecture power chain, sensors, and WiFi data flow",
 	componentDecisions: [
 		{
 			title: "Microcontroller: ESP32 vs Arduino",

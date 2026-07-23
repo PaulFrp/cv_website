@@ -15,7 +15,7 @@ export const projects = [
 		id: "xp-tracker",
 		title: "Xp-tracker",
 		description:
-			"Another small project in the beginning. Inspired by a manga, I create this website to track different “statistics”. Strength, endurance, generosity, intelligence and many others. On which you could add points for a given statistics when you fulfill certain conditions. After reaching certain levels you would gain badges and be able to show them on your front page when others visit. There is also a leaderboard to see who is the most active and daily challenges to complete. This was then enhanced by the addition of a cooking tab when this website became an always on display in my apartment and drive to share cooking recipes. Recently, the plant tab was added in relation to another project (Humidity plant tracker) to see data and evolution over time.",
+			"Gamified life OS (Flask + PostgreSQL): 16 skills, daily challenges, badges/titles, leaderboard — plus a collaborative cooking Drive and an ESP32 plant-sensor dashboard.",
 	},
 	{
 		id: "kaggle",
@@ -56,7 +56,7 @@ export const projects = [
 		id: "nas",
 		title: "TNAS set up",
 		description:
-			"Docker / Tailscale / full arr stack / Uptime Kuma / Vault / Bitwarden.",
+			"Self-hosted TNAS homelab with Docker Compose: Jellyfin, *arr stack, qBittorrent behind Gluetun (Mullvad), Caddy, Vaultwarden, Uptime Kuma, and Tailscale remote access.",
 	},
 	{
 		id: "esp32",
