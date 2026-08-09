@@ -2,9 +2,31 @@ export const xpTrackerDetail = {
 	displayTitle: "XP Tracker — Gamified life OS with cooking & IoT",
 	pitch:
 		"A full-stack personal productivity platform shaped as a gamified “life OS”: 16 skills, daily challenges, badges and titles, plus collaborative recipe sharing and an ESP32 plant-sensor dashboard — all in one Flask + PostgreSQL app.",
-	overview:
-		"XP Tracker started as a manga-inspired habit tracker and grew into a full personal “life OS.” Users level up across 16 skills in four categories — Physical (Strength, Endurance, Mobility, Speed), Mental (Intelligence, Concentration, Logic, Creativity), Lifestyle (Dexterity, Vitality, Recovery, Affection), and Meta (Discipline, Planning, Reflection, Good deeds). They earn XP from intentional actions, complete a rotating set of daily challenges drawn from a bank of ~70 prompts, and unlock a content-driven progression system of 80 badges and 80 skill titles (milestone unlocks at levels 10–50). Progress can be showcased on public profiles and ranked on a leaderboard by average skill level. The progression engine uses a triangular XP curve (80 + 12 × L × (L+1) / 2) with multi-level-up handling, per-skill streak tracking, and daily XP aggregates so the loop feels like an RPG rather than a simple checklist. Beyond gamification, the app expanded into two product domains: a collaborative cooking / recipe Drive with Google Drive–style shared collections (owner / view / edit ACLs), recipe CRUD, multi-tag and difficulty/time/cost filters, creator attribution, and upsert-based share management; and an IoT plant humidity & environment tracker that ingests live ESP32 sensor payloads (moisture, temperature, humidity, lux) through an API-key–protected POST /api/sensor endpoint, stores time-series readings in PostgreSQL, auto-provisions per-device watering thresholds, surfaces “needs water” status on a live dashboard, and visualizes history with Chart.js including rolling-average trend overlays. Technically it is a Python Flask 3 monolith organized with an application factory and 11 blueprints (auth, dashboard, XP, challenges, cards, badges, titles, leaderboard, profiles, cooking, plants), Jinja2 templates with custom CSS and vanilla JS (plus Tailwind on auth pages), PostgreSQL via psycopg2 with raw SQL and an idempotent schema bootstrap (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS) that works locally and on managed cloud DBs without a migration framework, session-based auth, and Gunicorn + Heroku-style Procfile / wsgi deployment. Notable engineering touches include environment-aware DB creation (skip provisioning on Heroku/RDS), DISTINCT ON queries for latest-per-device sensor state, JSON-driven badge/title content paired with custom artwork, and a clean separation between game logic (stats, streaks, challenge resets via a global config clock) and feature modules — so the project scales from personal habit tracking into multi-user collaboration and hardware-backed monitoring.",
-	techStack: [
+	overview:[
+		"XP Tracker started as a manga-inspired habit tracker and grew into a full personal “life OS.” ",
+		"Users level up across 16 skills in four categories — Physical (Strength, Endurance, Mobility, Speed), ",
+		"Mental (Intelligence, Concentration, Logic, Creativity), Lifestyle (Dexterity, Vitality, Recovery, Affection), ",
+		"and Meta (Discipline, Planning, Reflection, Good deeds). They earn XP from intentional actions, ",
+		"complete a rotating set of daily challenges drawn from a bank of ~70 prompts, and unlock a content-driven progression system of 80 badges and 80 skill titles (milestone unlocks at levels 10–50). ",
+		"Progress can be showcased on public profiles and ranked on a leaderboard by average skill level. ",
+		"The progression engine uses a triangular XP curve (80 + 12 × L × (L+1) / 2) with multi-level-up handling, per-skill streak tracking, ",
+		"and daily XP aggregates so the loop feels like an RPG rather than a simple checklist. ",
+		"Beyond gamification, the app expanded into two product domains: ",
+		"a collaborative cooking / recipe Drive with Google Drive–style shared collections (owner / view / edit ACLs), recipe CRUD, multi-tag and difficulty/time/cost filters, creator attribution, and upsert-based share management; ",
+		"and an IoT plant humidity & environment tracker that ingests live ESP32 sensor payloads ",
+		"(moisture, temperature, humidity, lux) through an API-key–protected POST /api/sensor endpoint, stores time-series readings in PostgreSQL, ",
+		"auto-provisions per-device watering thresholds, surfaces “needs water” status on a live dashboard, ",
+		"and visualizes history with Chart.js including rolling-average trend overlays. Technically it is a Python Flask 3 monolith ",
+		"organized with an application factory and 11 blueprints (auth, dashboard, XP, challenges, cards, badges, titles, leaderboard, profiles, cooking, plants), ",
+		"Jinja2 templates with custom CSS and vanilla JS (plus Tailwind on auth pages), ",
+		"PostgreSQL via psycopg2 with raw SQL and an idempotent schema bootstrap (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS) ",
+		"that works locally and on managed cloud DBs without a migration framework, session-based auth, and Gunicorn + Heroku-style Procfile / wsgi deployment. ",
+		"Notable engineering touches include environment-aware DB creation (skip provisioning on Heroku/RDS), ",
+		"DISTINCT ON queries for latest-per-device sensor state, JSON-driven badge/title content paired with custom artwork, ",
+		"and a clean separation between game logic (stats, streaks, challenge resets via a global config clock) and feature modules ",
+		"so the project scales from personal habit tracking into multi-user collaboration and hardware-backed monitoring.",
+	],
+		techStack: [
 		{
 			layer: "Backend",
 			technologies:
@@ -36,15 +58,17 @@ export const xpTrackerDetail = {
 		},
 		{
 			layer: "Deployment",
-			technologies: "Heroku-style Procfile, environment-aware DB provisioning",
+			technologies: "Heroku Procfile, environment-aware DB provisioning",
 		},
 	],
 	challenges: [
 		{
 			title: "RPG-feel progression without feeling like a checklist",
-			problem:
-				"A flat “add points” model reads as a to-do list. Users needed a curve, streaks, and unlocks that make daily actions feel like leveling a character — including multi-level jumps when a big XP grant crosses several thresholds at once.",
-			solution: [
+			problem:[
+				"A flat “add points” model reads as a to-do list. Users needed a curve, streaks, ",
+				"and unlocks that make daily actions feel like leveling a character — including multi-level jumps when a big XP grant crosses several thresholds at once.",
+			],
+				solution: [
 				"Triangular XP curve: 80 + 12 × L × (L+1) / 2 with multi-level-up handling",
 				"Per-skill streak tracking and daily XP aggregates",
 				"Content-driven unlocks: 80 badges + 80 skill titles at levels 10–50",

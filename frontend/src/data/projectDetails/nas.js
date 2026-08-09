@@ -1,11 +1,23 @@
 export const nasDetail = {
 	displayTitle: "TNAS Homelab — Self-hosted container stack",
-	pitch:
-		"A self-hosted homelab centered on a TNAS NAS, running a full Docker Compose stack for media, downloads, reverse proxying, password management, and monitoring — with secure remote access via Tailscale instead of exposing ports to the internet.",
-	overview:
-		"My homelab is built around a TNAS NAS as the central hardware, chosen to run a self-hosted, containerized stack rather than relying on cloud services. Docker sits at the core of the setup, orchestrating everything via Compose: a full *arr stack (Radarr/Sonarr) paired with Jellyfin for media management and streaming, qBittorrent for downloads routed through Gluetun (Mullvad VPN over WireGuard) to keep torrent traffic secured, Caddy as a reverse proxy for clean routing to services, Vaultwarden (self-hosted Bitwarden) for password management, and Uptime Kuma for monitoring service health. One key problem I solved was a race condition on boot — qBittorrent would crash because it started before the Gluetun VPN container was actually healthy. I fixed this with depends_on: condition: service_healthy in Compose so qBittorrent waits for the VPN tunnel to be confirmed up before starting. For remote access, I used Tailscale to reach Jellyfin and Vaultwarden securely from outside the home network — including getting Jellyfin working across various TV platforms — without exposing ports directly to the internet. I also explored Wake-on-LAN and monitor-off vs. sleep states to balance remote availability with power efficiency.",
+	pitch: [
+		"This project shows my first steps into the world of homelabbing. For this first project, I decided to set up a NAS. ",
+		"The goal was to run different Docker compartiments for different uses like: media, downloads, reverse proxying, password management, and monitoring. ",
+	],
+	overview:[
+		"My homelab is built around a NAS with 4 slots (only 2 are used with 4TB disks for now) as the central hardware.",
+		"The motivation behinf this project was to self host containerized applications rather than relying on cloud services that have complete control over your data.",
+		" It was also my first time deploying a full project orchestrated via docker.",
+		" I used docker-compose files split like this: a full *arr stack (Radarr/Sonarr) paired with Jellyfin for media management and streaming, ",
+		"qBittorrent for downloads routed through Gluetun (Mullvad VPN over WireGuard) to keep torrent traffic secured, Caddy as a reverse proxy for clean routing to services, ",
+		"Vaultwarden (self-hosted Bitwarden) for password management, and Uptime Kuma for monitoring service health. ",
+		"For remote access, I used Tailscale to reach Jellyfin and Vaultwarden securely from outside the home network ",
+		"including getting Jellyfin working across various TV platforms without exposing ports directly to the internet.", 
+		"I also explored Wake-on-LAN and monitor-off vs. sleep states to balance remote availability with power efficiency.",
+	],
 	techStack: [
-		{ layer: "Hardware", technologies: "TNAS NAS (homelab host)" },
+		{ layer: "Hardware", technologies: "NAS Terramaster F4-424" },
+		{ layer: "Disks", technologies: "2x Seagate IronWolf 4TB" }, 
 		{
 			layer: "Orchestration",
 			technologies: "Docker, Docker Compose",
@@ -28,34 +40,45 @@ export const nasDetail = {
 		},
 	],
 	challenges: [
+		"I d like to mention that I have had surprisingly few challenges with this project. Starting a new project specifically in fields that you haven't touched before ususally leads to hours of head smashing but not this one. " , 
 		{
-			title: "qBittorrent crash on boot (VPN race condition)",
-			problem:
-				"On NAS reboot, qBittorrent started before the Gluetun VPN container had a healthy WireGuard tunnel. The client then came up without a working VPN path and crashed or failed to bind correctly, leaving the download stack broken until a manual restart.",
+			title: "Turning off your power when you go on holliday", 
+			problem:"Involountarily shutting down your whole system without even realizing it.",
 			solution: [
-				"Added a Docker healthcheck on the Gluetun container so Compose can detect when the VPN tunnel is actually up",
-				"Set qBittorrent depends_on with condition: service_healthy so it only starts after Gluetun reports healthy",
-				"Verified reboot behavior: media downloads stay routed through Mullvad without manual intervention",
+				"More of a joke problem but was still a lesson I learned the hard way and I believe this to be a good reminder.",
+				"When leaving my apartment for more than 2 weeks for a holliday it made sense to turn off the water and the elecrticty as usual.", 
+				"Once far away from the apartment and a couple of days later I realized that I had lost my tailscale coonection to the NAS.", 
+				"I do have to say that it took me an embarassing amounf of time and efforts before realizing what had actually happened... the problem is always the human"
 			],
 		},
 		{
 			title: "Secure remote access without opening ports",
-			problem:
-				"I needed access to Jellyfin and Vaultwarden away from home — including on various TV platforms — without exposing services directly on the public internet.",
+			problem:[
+				"For obvious reasons, I needed access to Jellyfin and Vaultwarden not only at home but everywhere on my smartphone or laptop.",
+				" But exposing my services directly on the public internet is both risky and defeating the purpose of self-hosting.",
+			],
 			solution: [
-				"Deployed Tailscale as a private mesh VPN into the homelab",
-				"Routed Jellyfin and Vaultwarden over Tailscale instead of port-forwarding",
+				"As I was already familiar with the technology, I deployed Tailscale as a private VPN into the homelab",
+				"With tailscale set up I was able to route Jellyfin and Vaultwarden through it instead of port-forwarding",
+				"This was also my first realisation of all the possible ways docker could be used. On the same machine ",
+				"I was able to have a whole container under a VPN while some other containers were on the tailscale network. ",
+				"I was scared of running into IP problems for conections but thanks to docker it was well handled",
 				"Validated playback and client behavior across multiple TV / streaming devices",
 			],
 		},
 		{
-			title: "Remote availability vs. power efficiency",
-			problem:
-				"Keeping the NAS always fully awake wastes power, but deep sleep breaks remote access when something needs to stream or unlock a vault from outside.",
+			title: "qBittorrent crash on boot (VPN race condition)",
+			problem:[
+				"Once (after a 2 weeks holliday) I had to reboot my NAS for some reason (:D). It would not start up so I investigated docker logs and found at that",
+				" qBittorrent container tried starting but failed for no apparent reasons. More digging led me to find that the container was trying to start ",
+				"before the Gluetun VPN container had a healthy WireGuard tunnel.",
+				"For this reason the conatiner would come up  without a working VPN path and due to specific guardrails that I created it failed to boot,",
+				" leaving the download stack broken until a manual restart.",
+			],
 			solution: [
-				"Compared monitor-off / idle states vs. full sleep for how they affect Docker and network reachability",
-				"Explored Wake-on-LAN as a way to bring the host online on demand",
-				"Settled on a balance that keeps critical services reachable without leaving everything fully powered all day",
+				"To solve this issue, I first added a Docker healthcheck on the Gluetun container so Compose can detect when the VPN tunnel is actually up",
+				"Then I set a depends_on with condition: service_healthy inside the qbitorrent compose so it only starts after Gluetun reports healthy",
+				"And after verification and a new reboot, the behavior was confirmed and everything worked fine.",
 			],
 		},
 	],

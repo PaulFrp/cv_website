@@ -1,18 +1,25 @@
 export const plantTrackerDetail = {
-	displayTitle: "Smart Plant Monitor — IoT Device from Scratch",
+	displayTitle: "Smart Plant Monitor",
 	stack:
 		"ESP32 · C++ · Arduino · DHT22 · TSL2591 · Capacitive Soil Sensor · TC4056 · Python/FastAPI · WiFi/HTTP",
 	skills:
 		"Embedded firmware · Hardware design · Soldering · 3D printing · REST API integration",
 	status: "Hardware complete, firmware working, case design in progress",
 	overview: [
-		"The goal of this project was to build a fully autonomous plant monitoring device. To achieve this, I used standalone electronic components and assembled them together. The device measures soil moisture, air temperature, air humidity, and light.",
-		"It then sends the recorded data over WiFi to an API that I created on my Xp-tracker website to display the data on a dashboard updated every hour. The project covers the full stack from component selection and schematic design, to soldering, firmware, data pipeline, and 3D-printed enclosure.",
-		"The goal was not to buy a ready-made sensor kit, but to understand every layer of the system from the ground up: why choose each component, how they communicate, how the device stays alive on battery, and how the data flows to a dashboard.",
+		"This project started when my grilfriend brought home many new plants. As it was hard to know when to water them, I decided to build a smart monitoring solution. ",
+		"To build such a device, I used electronic components and assembled them together. ",
+		"The device measures soil moisture, air temperature, air humidity, and light.",
+		"It then sends the recorded data over WiFi to an API that I created on my Xp-tracker website (which is another project) to display the data on a dashboard updated every hour. ",
+		"This is a very exciting project as it is quite complete. From component selection and schematic design, to soldering, software, data pipeline, and 3D-printed enclosure.",
+		"These types of objects already exist. But the goal was not to buy an already made sensor, but to understand every layer of the systemand be able to call it my own work. ",
+		"I had to make decisions about each component, how they communicate, how the device stays alive on battery, and how the data goes to my dashboard.",
 	],
 	motivation: [
-		"Most commercial plant monitors are either too expensive for scaling across multiple plants, or too closed to integrate into a custom dashboard. I wanted something I could replicate for under €25 per unit, fully understand, and connect to my own backend.",
-		"The secondary motivation was to combine skills I had been building separately: embedded programming, soldering, 3D printing into one cohesive project with a real, useful output.",
+		"Most commercial plant monitors can get expensive when trying to scale across multiple plants, ",
+		"or too closed to integrate into a custom dashboard. I wanted something I could replicate for ~20€ or less per unit, ",
+		"fully understand, and connect to my own backend.",
+		"The other motivation was to combine skills I had been building separately: ",
+		"microcontroller programming, electrical engineering, soldering, and 3D printing into one project with a real, useful output.",
 	],
 	architectureImage: "/schematic.png",
 	architectureCaption: "System architecture power chain, sensors, and WiFi data flow",
@@ -20,36 +27,55 @@ export const plantTrackerDetail = {
 		{
 			title: "Microcontroller: ESP32 vs Arduino",
 			paragraphs: [
-				"The initial instinct was to use an Arduino Nano — familiar territory from previous projects. The key realization was that an Arduino has no WiFi natively: adding an ESP8266 WiFi module would mean managing AT commands over UART, adding complexity and failure points for no benefit.",
-				"The ESP32 is a better fit for three reasons:",
+				"My initial instinct was to use an Arduino Nano ",
+				"as I am familiar with the hardware from previous projects. The key realization was that an Arduino has no WiFi natively. ",
+				"I looked at an alternative by adding an ESP8266 WiFi module. But it would have meant managing AT commands over UART. ",
+				"This would have added unnecessary and quite honestly very hard complexity and possible failures for no benefit.",
+				"Thus, the ESP32 was a better fit for three reasons:",
 			],
 			list: [
 				"WiFi is built in. No external module, no AT command layer, WiFi just works as a standard library.",
-				"Deep sleep at ~10µA. The device only needs to be awake for a few seconds every hour to read sensors and transmit. The rest of the time it can sleep at near-zero consumption. On a 3000mAh cell this translates to weeks of autonomy rather than hours.",
-				"12-bit ADC with 18 channels. The capacitive soil sensor outputs an analog voltage. The ESP32's ADC gives 4096 steps of resolution versus 1024 on the Arduino Uno, which means finer moisture detection — though in practice the sensor's own variability is the limiting factor.",
+				"Deep sleep at ~10µA. The device only needs to be awake for a few seconds every hour to read sensors and transmit. ",
+				"The rest of the time it can sleep at near-zero consumption. On a 3000mAh cell this translates to weeks of autonomy rather than hours.",
+				"12-bit ADC with 18 channels. The capacitive soil sensor outputs an analog voltage. ",
+				"The ESP32's ADC gives 4096 steps of resolution versus 1024 on the Arduino Uno, ",
+				"which means better moisture detection. Although to be honest the project was not meant to be industry grade so this might have been an unnecessary constraint. ",
 			],
-			closing:
-				"The trade-off: the ESP32 runs at 3.3V logic, not 5V. Every sensor needed to be verified as 3.3V compatible. All three chosen sensors (DHT22, TSL2591, capacitive soil) support 3.3V, so this was not a blocker, but it is something to check for any future sensor additions.",
+			closing:[
+				"The trade-off: the ESP32 runs at 3.3V logic, not 5V. Every sensor needed to be verified as 3.3V compatible. ",
+				"All three chosen sensors (DHT22, TSL2591, capacitive soil) support 3.3V, so this was not a blocker"
+			]
 		},
 		{
 			title: "Soil Sensor: Capacitive vs Resistive",
 			paragraphs: [
-				"Two types of soil moisture sensors exist in the hobbyist market:",
-				"Resistive sensors work by measuring electrical conductivity between two metal probes. They are cheap (~€0.50) but corrode within weeks in moist soil, giving increasingly inaccurate readings until they fail entirely.",
-				"Capacitive sensors measure the dielectric constant of the soil around a PCB trace without passing current through the soil. No corrosion, stable long-term readings, and more accurate at mid-range moisture levels.",
-				"The capacitive v1.2 was chosen. The additional cost (€1.20 vs €0.50) is trivial for the durability improvement.",
+				"When looking for soil sensors, I came accross two types: ",
+				"Resistive sensors which work by measuring electrical conductivity between two metal rodes. ",
+				"They are cheap (~€0.50) but usually get corroded within weeks in moist soil. ",
+				"This meant that they would be giving increasingly inaccurate readings until they fail.",
+				"Capacitive sensors measure the dielectric constant of the soil around a PCB trace without passing current through the soil. ", ///Add some explaning of the words here
+				"This means less/no corrosion, more stable long-term readings, and they also seem to be more accurate at mid-range levels.",
+				"The capacitive v1.2 was chosen. I considered the additional cost (€1.20 vs €0.50) to be trivial given the durability improvement.",
 			],
-			closing:
-				"Calibration trade-off: capacitive sensors require calibration per-unit. The raw ADC output varies between sensors and between ESP32 boards due to ADC non-linearity. The calibration procedure (measuring raw values in air and in water, then mapping to 0–100%) takes five minutes but must be done for every new sensor. In a commercial product you would factory-calibrate or use a lookup table; in this project it is a manual step.",
-			note: "My calibrated values: AIR_VALUE = 2030, WATER_VALUE = 620. These will differ on your hardware.",
+			closing:[
+				"Calibration trade-off: capacitive sensors require calibration per-unit. ",
+				"The raw ADC output varies between sensors and between ESP32 boards due to ADC non-linearity. ",
+				"The calibration procedure (measuring raw values in air and in water, then mapping to 0–100%) takes five minutes but must be done for every new sensor. ",
+				"In a commercial product you would factory-calibrate or use a lookup table; in this project it is a manual step.",
+			],
+			note: "My calibrated values: AIR_VALUE = 2030, WATER_VALUE = 620. ",
 		},
 		{
 			title: "Light Sensor: TSL2591 vs LDR",
 			paragraphs: [
 				"A simple Light Dependent Resistor (LDR) costs ~€0.10 and gives a rough analog voltage proportional to light. It was the obvious first choice.",
-				"The TSL2591 was chosen instead for three reasons. First, it outputs calibrated lux values rather than arbitrary ADC counts, making readings comparable across devices and meaningful in plant-care terms (most houseplants have specific lux requirements). Second, it has two photodiodes — one for full spectrum and one for infrared — allowing the chip to compute visible light independently from IR, which better reflects what plants actually use. Third, it communicates over I²C, freeing up the ADC channels for other uses.",
+				"The TSL2591 was chosen instead for three reasons. ",
+				"First, it outputs calibrated lux values rather than arbitrary ADC counts, making readings comparable across devices and meaningful in plant-care terms ",
+				"(most houseplants have specific lux requirements). Second, it has two photodiodes ", //Big word here again 
+				"one for full spectrum and one for infrared allowing the chip to compute visible light independently from IR, which better reflects what plants actually use. ",
+				"Third, it communicates over I²C, freeing up the ADC channels for other uses.",
 			],
-			closing:
+			closing: //Price seems a little off 
 				"The trade-off is cost (~€5 vs ~€0.10) and the need to manage I²C address conflicts if adding multiple identical sensors to one bus (the TSL2591's I²C address is fixed at 0x29).",
 		},
 		{
@@ -62,13 +88,18 @@ export const plantTrackerDetail = {
 			powerChain: "USB-C (5V) → TC4056 charger → 18650 cell → [boost converter] → ESP32",
 			subsections: [
 				{
-					title: "The boost converter problem — an important lesson",
+					title: "The boost converter problem, an important lesson",
 					paragraphs: [
-						"The TC4056 outputs raw battery voltage: 3.7V nominal, up to 4.2V when fully charged. The ESP32 expansion shield requires 5V via its USB input or 6.5V–16V via its DC barrel jack. The battery voltage falls in neither range.",
-						"The solution is a MT3608 boost converter (~€1) that steps up the battery's 3.7–4.2V to a stable 5V. This component was not in the original BOM and was discovered only when trying to connect the TC4056 to the shield — a good example of why building the circuit physically reveals gaps that a paper schematic can miss.",
+						"The TC4056 outputs raw battery voltage: 3.7V nominal, up to 4.2V when fully charged. The ESP32 expansion shield requires 5V via its USB input or 6.5V–16V via its DC barrel jack. ",
+						"The battery voltage falls in neither range.",
+						"The solution is a MT3608 boost converter (~€1) that steps up the battery's 3.7–4.2V to a stable 5V. ",
+						"This component was not in the original BOM and was discovered only when trying to connect the TC4056 to the shield. ",
+						"a good example of why building the circuit physically reveals gaps that a paper schematic can miss.",
 					],
-					lesson:
-						"When designing a battery-powered system, trace the full voltage chain from cell to load before ordering components. Each step in the chain (charger → cell → converter → regulator → MCU) has input and output voltage requirements that must be matched.",
+					lesson:[
+						"When designing a battery-powered system, trace the full voltage chain from cell to load before ordering components. ",
+						"Each step in the chain (charger → cell → converter → regulator → MCU) has input and output voltage requirements that must be matched.",
+					]
 				},
 			],
 			batteryEstimate: [
@@ -78,8 +109,10 @@ export const plantTrackerDetail = {
 				"Daily consumption: (24 × 200mA × 3s / 3600) + (24h × 0.01mA) ≈ 4mAh/day",
 				"Autonomy on 3000mAh cell: ~750 days theoretical",
 			],
-			closing:
-				"In practice, WiFi connection time varies (sometimes 5–10 seconds), and the boost converter has its own efficiency loss (~85%). Realistic autonomy is closer to 3–6 months between charges — still very acceptable.",
+			closing:[
+				"In practice, WiFi connection time varies (sometimes 5–10 seconds), and the boost converter has its own efficiency loss (~85%). ",
+				"Realistic autonomy is closer to 3–6 months between charges which i deemed as still very acceptable.",
+			]
 		},
 	],
 	firmware: {
@@ -117,9 +150,10 @@ raw /= 10;`,
 			intro:
 				"This was my first project involving soldering small SMD-adjacent pads (the TC4056 power pads) rather than through-hole components. Several practical lessons:",
 			list: [
-				"Cold joints look different from good ones. A good solder joint is shiny, smooth, and forms a small volcano shape around the wire. Cold joints look dull and blobby — they make electrical contact intermittently at best. Several joints needed to be redone.",
+				"Maybe the most important that I have been pushing for way too long. The need to by soldering helping hands. This project showed just how much easier it would have made every steps.", 
+				"Cold joints look different from good ones. A good solder joint is shiny, smooth, and forms a small volcano shape around the wire. Cold joints look dull and blobby they make electrical contact intermittently at best. Several joints needed to be redone.",
 				"Color-code everything. I initially soldered two red wires for OUT+ and OUT−. With no visual distinction, it is impossible to know which is positive without a multimeter. Black for ground, red for positive, always, even on the bench.",
-				"Label your connectors before you need to debug. The ESP32 expansion shield has multiple ground and VCC pins serving different purposes — one group outputs 3.3V to sensors, another is a power input, one is tied to USB. Without reading the expansion board's datasheet, these look identical.",
+				"Label your connectors before you need to debug. The ESP32 expansion shield has multiple ground and VCC pins serving different purposes one group outputs 3.3V to sensors, another is a power input, one is tied to USB. Without reading the expansion board's datasheet, these look identical.",
 			],
 		},
 		expansionShield: {
@@ -135,7 +169,7 @@ raw /= 10;`,
 			closing:
 				"The correct input (VIN on the main ESP32 header) is accessible but requires bypassing the shield's own power routing, or using the boost converter to hit 5V for the shield's USB input.",
 			lesson:
-				"Expansion shields and breakout boards add convenience but also abstraction. When something does not work, reading the shield's own documentation separately from the ESP32 datasheet is essential — they are two different circuits stacked together.",
+				"Expansion shields and breakout boards add convenience but also abstraction. When something does not work, reading the shield's own documentation separately from the ESP32 datasheet is essential. They are two different circuits stacked together.",
 		},
 	},
 	doDifferently: [
@@ -153,8 +187,6 @@ raw /= 10;`,
 		"Complete the power circuit — add MT3608 boost converter, connect TC4056 → boost → ESP32, validate battery operation",
 		"Implement deep sleep — switch from delay() to ESP32 deep sleep with RTC wakeup, validate current consumption",
 		"Design and print the enclosure — two-part case: main body clipping to pot rim housing ESP32 + battery, soil probe stake with sensor at tip",
-		"Build the dashboard — Grafana connected to InfluxDB, or a lightweight React frontend",
-		"Add Telegram notifications — alert when soil moisture drops below threshold per plant",
 		"Scale to multiple plants — replicate the hardware, give each device a unique plant ID, aggregate in a single dashboard",
 	],
 	skillsDemonstrated: [
