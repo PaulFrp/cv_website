@@ -1,10 +1,15 @@
 export const minigameDetail = {
-	displayTitle: "Mini Games — Real-time multiplayer party game platform",
+	displayTitle: "Mini Games / Real-time multiplayer party game platform",
 	pitch:
-		"A full-stack web app hosting several real-time multiplayer games (Make It Meme, Cards Against Humanity, Who Said It, etc.), with shared room management, WebSocket sync, and mobile-safe session handling across iOS Safari and Heroku deployment.",
-	overview:
-		"Built a multiplayer party-game platform where players create or join rooms, pick a game, and play in sync across devices. The hardest part was not the game rules themselves, but keeping every client on the same phase (lobby → captioning → voting → results) when connections drop, cookies fail, or users refresh mid-game. I introduced a shared room client layer, server-side background timers for phase transitions, a hybrid WebSocket + HTTP sync strategy, and header-based identity as a fallback when cross-site cookies are blocked (especially on iPhone Safari).",
-	techStack: [
+		"A full-stack website with several real-time multiplayer games, with shared room management, WebSocket sync, and mobile session handling across iOS Safari and Heroku deployment.",
+	overview:[
+		"Built a multiplayer platform where players create or join rooms, pick a game, and play in sync across devices. ",
+		"The hardest part was not the game rules themselves, but keeping every client on the same phase (lobby → captioning → voting → results) ",
+		"when connections drop, cookies fail, or users refresh mid-game. ",
+		"I introduced a shared room client layer, server-side background timers for phase transitions, a hybrid WebSocket + HTTP sync strategy, ",
+		"and header-based identity as a fallback when cross-site cookies are blocked (especially on iPhone Safari).",
+	], 
+		techStack: [
 		{ layer: "Frontend", technologies: "Next.js 14, React 18, CSS Modules" },
 		{ layer: "Backend", technologies: "FastAPI, Uvicorn, Python asyncio" },
 		{ layer: "Real-time", technologies: "WebSockets + HTTP polling fallback" },
@@ -27,7 +32,7 @@ export const minigameDetail = {
 		{
 			title: "Room creation & join flow unreliable on mobile",
 			problem:
-				"After creating/joining a room, some devices lost the room_id (localStorage blocked in Safari Private mode, Next.js router race, shared room_id key across games).",
+				"After creating/joining a room, some devices lost the room_id (localStorage blocked in Safari or private mode, Next.js router race, shared room_id key across games).",
 			solution: [
 				"URL-first room persistence: ?room_id=123 in the address bar",
 				"Per-game storage keys (room_id_make_it_meme, etc.)",
