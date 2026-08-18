@@ -7,44 +7,32 @@ import {
 	SPAWN,
 } from "./museumLayout";
 import { getShortProjectBlurb } from "../../shared/utils/projectText";
+import MuseumFigures from "./MuseumFigures";
 
 const PLAYER_SPEED = 140;
 const PROXIMITY = 70;
-// Cache-bust so an old museum.png can't stay misaligned with the outline.
-const ASSET_VER = "20260811d";
+const WALK_CYCLE_DISTANCE = 12;
+const PLAYER_DRAW_H = 96;
+const ASSET_VER = "20260818a";
 const MUSEUM_URL = `/museum/museum.png?v=${ASSET_VER}`;
 const OUTLINE_URL = `/museum/museum_outline.png?v=${ASSET_VER}`;
-const CHAR_URL = `/museum/character.png?v=${ASSET_VER}`;
-
-/** Cropped frames from Character.png 2×2 sheet. */
-const CHAR_FRAMES = {
-	down: { sx: 276, sy: 68, sw: 207, sh: 517 },
-	right: { sx: 783, sy: 76, sw: 197, sh: 511 },
-	up: { sx: 276, sy: 655, sw: 207, sh: 509 },
-	left: { sx: 795, sy: 661, sw: 193, sh: 511 },
+const CHAR_STRIP_URLS = {
+	down: `/museum/character_movement/front.png?v=${ASSET_VER}`,
+	left: `/museum/character_movement/left.png?v=${ASSET_VER}`,
+	right: `/museum/character_movement/right.png?v=${ASSET_VER}`,
+	up: `/museum/character_movement/back.png?v=${ASSET_VER}`,
 };
-
-const CHAR_DRAW_H = 64;
-const CHAR_BG_KEY = { r: 46, g: 47, b: 45 };
+const CHAR_FRAME_COUNTS = {
+	down: 3,
+	left: 3,
+	right: 3,
+	up: 4,
+};
 
 /** Tool red on museum_outline.png (≈ #ED1C24). */
 const OUTLINE_RED = { r: 237, g: 28, b: 36 };
 /** Tool blue markers (≈ #3F48CC). */
 const OUTLINE_BLUE = { r: 63, g: 72, b: 204 };
-
-function isCharacterBackground(r, g, b) {
-	// Only strip flat gray sheet backdrop — keep black outlines + dark clothes.
-	const avg = (r + g + b) / 3;
-	if (avg < 28) return false;
-	const nearGray =
-		Math.abs(r - g) <= 10 && Math.abs(g - b) <= 10 && Math.abs(r - b) <= 10;
-	if (!nearGray) return false;
-	const dist =
-		Math.abs(r - CHAR_BG_KEY.r) +
-		Math.abs(g - CHAR_BG_KEY.g) +
-		Math.abs(b - CHAR_BG_KEY.b);
-	return dist <= 28;
-}
 
 function colorDist(r, g, b, target) {
 	return (
@@ -76,15 +64,15 @@ function shuffle(list) {
  * Blue blobs = project spot rectangles.
  * Uses the outline image's native pixels 1:1 (no window scaling).
  */
-function parseOutline(image) {
-	const worldW = image.naturalWidth || MUSEUM_SIZE.w;
-	const worldH = image.naturalHeight || MUSEUM_SIZE.h;
+function parseOutline(image, worldWidth, worldHeight) {
+	const worldW = worldWidth || image.naturalWidth || MUSEUM_SIZE.w;
+	const worldH = worldHeight || image.naturalHeight || MUSEUM_SIZE.h;
 	const c = document.createElement("canvas");
 	c.width = worldW;
 	c.height = worldH;
 	const ctx = c.getContext("2d", { willReadFrequently: true });
-	// 1:1 copy — never stretch to CSS/window size
-	ctx.drawImage(image, 0, 0);
+	// Align outline processing to the museum background world size.
+	ctx.drawImage(image, 0, 0, worldW, worldH);
 	const { data } = ctx.getImageData(0, 0, worldW, worldH);
 
 	const blocked = new Uint8Array(worldW * worldH);
@@ -315,31 +303,44 @@ function layoutExhibits(stands, list) {
 	return exhibits;
 }
 
-function chromaKeySheet(image) {
-	const c = document.createElement("canvas");
-	c.width = image.naturalWidth || image.width;
-	c.height = image.naturalHeight || image.height;
-	const ctx = c.getContext("2d", { willReadFrequently: true });
-	ctx.drawImage(image, 0, 0);
-	const img = ctx.getImageData(0, 0, c.width, c.height);
-	const { data } = img;
-	for (let i = 0; i < data.length; i += 4) {
-		if (isCharacterBackground(data[i], data[i + 1], data[i + 2])) {
-			data[i + 3] = 0;
-		}
-	}
-	ctx.putImageData(img, 0, 0);
-	return c;
+function getStripFrame(strip, frameCount, frameIndex) {
+	const fullWidth = strip.naturalWidth || strip.width;
+	const fullHeight = strip.naturalHeight || strip.height;
+	const startX = Math.round((fullWidth * frameIndex) / frameCount);
+	const endX = Math.round((fullWidth * (frameIndex + 1)) / frameCount);
+	return {
+		sx: startX,
+		sy: 0,
+		sw: endX - startX,
+		sh: fullHeight,
+	};
 }
 
-function drawPlayer(ctx, sheet, x, y, facing) {
-	const frame = CHAR_FRAMES[facing] || CHAR_FRAMES.down;
-	const scale = CHAR_DRAW_H / frame.sh;
+function getIdleFrameIndex(frameCount) {
+	return frameCount >= 3 ? 1 : 0;
+}
+
+function getWalkFrameIndex(frameCount, step) {
+	if (frameCount === 3) {
+		const cycle = [0, 1, 2, 1];
+		return cycle[step % cycle.length];
+	}
+	return step % frameCount;
+}
+
+function drawPlayer(ctx, strips, x, y, facing, step, moving) {
+	const strip = strips[facing] || strips.down;
+	const frameCount = CHAR_FRAME_COUNTS[facing] || CHAR_FRAME_COUNTS.down;
+	const frameIndex = moving
+		? getWalkFrameIndex(frameCount, step)
+		: getIdleFrameIndex(frameCount);
+	const frame = getStripFrame(strip, frameCount, frameIndex);
+	const scale = PLAYER_DRAW_H / frame.sh;
 	const dw = frame.sw * scale;
-	const dh = CHAR_DRAW_H;
+	const dh = PLAYER_DRAW_H;
 	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(
-		sheet,
+		strip,
 		frame.sx,
 		frame.sy,
 		frame.sw,
@@ -376,27 +377,37 @@ function PixelMuseum() {
 	useEffect(() => {
 		const bg = new Image();
 		const outline = new Image();
-		const charImg = new Image();
+		const charStrips = {
+			down: new Image(),
+			left: new Image(),
+			right: new Image(),
+			up: new Image(),
+		};
 		bg.src = MUSEUM_URL;
 		outline.src = OUTLINE_URL;
-		charImg.src = CHAR_URL;
+		Object.entries(CHAR_STRIP_URLS).forEach(([dir, url]) => {
+			charStrips[dir].src = url;
+		});
 
 		let cancelled = false;
 		let raf = 0;
 		let loaded = 0;
 		let started = false;
+		const assetCount = 2 + Object.keys(charStrips).length;
 
 		const tryStart = () => {
 			loaded += 1;
-			if (started || loaded < 3 || cancelled) return;
+			if (started || loaded < assetCount || cancelled) return;
 			started = true;
 
+			const bgWorldW = bg.naturalWidth || MUSEUM_SIZE.w;
+			const bgWorldH = bg.naturalHeight || MUSEUM_SIZE.h;
 			if (
 				bg.naturalWidth !== outline.naturalWidth ||
 				bg.naturalHeight !== outline.naturalHeight
 			) {
 				console.error(
-					"museum.png and museum_outline.png size mismatch",
+					"museum.png and museum_outline.png size mismatch (outline is remapped to museum size)",
 					bg.naturalWidth,
 					bg.naturalHeight,
 					outline.naturalWidth,
@@ -405,8 +416,7 @@ function PixelMuseum() {
 			}
 
 			const { walk, stands, worldW, worldH, debugCanvas } =
-				parseOutline(outline);
-			const charSheet = chromaKeySheet(charImg);
+				parseOutline(outline, bgWorldW, bgWorldH);
 			const exhibits = layoutExhibits(stands, projects);
 
 			let spawnX = SPAWN.x;
@@ -431,7 +441,7 @@ function PixelMuseum() {
 
 			stateRef.current = {
 				bg,
-				charSheet,
+				charStrips,
 				walk,
 				worldW,
 				worldH,
@@ -527,10 +537,12 @@ function PixelMuseum() {
 						player.facing = dy < 0 ? "up" : "down";
 					}
 					player.moveAcc += speed;
-					if (player.moveAcc > 10) {
+					if (player.moveAcc > WALK_CYCLE_DISTANCE) {
 						player.step += 1;
 						player.moveAcc = 0;
 					}
+				} else {
+					player.moveAcc = 0;
 				}
 
 				const hit = findNearestExhibit(exhibits, player.x, player.y);
@@ -565,10 +577,12 @@ function PixelMuseum() {
 
 				drawPlayer(
 					ctx,
-					state.charSheet,
+					state.charStrips,
 					player.x,
 					player.y,
 					player.facing,
+					player.step,
+					dx !== 0 || dy !== 0,
 				);
 				raf = requestAnimationFrame(tick);
 			};
@@ -584,13 +598,18 @@ function PixelMuseum() {
 
 		bg.onload = tryStart;
 		outline.onload = tryStart;
-		charImg.onload = tryStart;
 		bg.onerror = () => console.error("Failed to load museum.png");
 		outline.onerror = () => console.error("Failed to load museum_outline.png");
-		charImg.onerror = () => console.error("Failed to load character.png");
+		Object.entries(charStrips).forEach(([dir, img]) => {
+			img.onload = tryStart;
+			img.onerror = () =>
+				console.error(`Failed to load character_movement/${dir}.png`);
+		});
 		if (bg.complete && bg.naturalWidth) tryStart();
 		if (outline.complete && outline.naturalWidth) tryStart();
-		if (charImg.complete && charImg.naturalWidth) tryStart();
+		Object.values(charStrips).forEach((img) => {
+			if (img.complete && img.naturalWidth) tryStart();
+		});
 
 		return () => {
 			cancelled = true;
@@ -610,19 +629,22 @@ function PixelMuseum() {
 
 	return (
 		<div className="pixel-museum">
-			<div className="pixel-museum-stage">
-				<canvas
-					ref={canvasRef}
-					className="pixel-museum-canvas"
-					aria-label="Pixel art museum. Use WASD or arrow keys to walk."
-				/>
-				{!ready && <p className="pixel-museum-loading">Loading museum…</p>}
-			</div>
-			<div
-				className={`pixel-museum-caption${nearby ? " is-visible" : ""}`}
-				role="status"
-				aria-live="polite"
-			>
+			<div className="pixel-museum-board">
+				<MuseumFigures side="left" />
+				<div className="pixel-museum-stage">
+					<canvas
+						ref={canvasRef}
+						className="pixel-museum-canvas"
+						aria-label="Pixel art museum. Use WASD or arrow keys to walk."
+					/>
+					{!ready && <p className="pixel-museum-loading">Loading museum…</p>}
+				</div>
+				<MuseumFigures side="right" />
+				<div
+					className={`pixel-museum-caption${nearby ? " is-visible" : ""}`}
+					role="status"
+					aria-live="polite"
+				>
 				{nearby ? (
 					<>
 						<strong className="pixel-museum-label-title">
@@ -642,6 +664,7 @@ function PixelMuseum() {
 						{showHitboxes ? " (hitbox overlay on — press H)" : " (press H for overlay)"}
 					</span>
 				)}
+			</div>
 			</div>
 			<div className="pixel-museum-controls" aria-label="Touch controls">
 				<button

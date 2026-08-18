@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { POSE_KEYS, POSE_SRC } from "../shared/ui/CharacterPose";
+import {
+	POSE_KEYS as PROJECT_POSE_KEYS,
+	POSE_SRC as PROJECT_POSE_SRC,
+} from "virtual:pose-assets";
+import {
+	POSE_KEYS as MUSEUM_POSE_KEYS,
+	POSE_SRC as MUSEUM_POSE_SRC,
+} from "virtual:museum-pose-assets";
 import "./DevPoseEditor.css";
 
 const STORAGE_PREFIX = "cv-pose-editor:";
@@ -21,12 +28,12 @@ function createId() {
 	return `pose-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-function getPageRoot() {
-	return document.querySelector(".project-detail");
+function getPageRoot(rootSelector) {
+	return document.querySelector(rootSelector);
 }
 
-function clientToPage(clientX, clientY) {
-	const root = getPageRoot();
+function clientToPage(clientX, clientY, rootSelector) {
+	const root = getPageRoot(rootSelector);
 	if (!root) {
 		return {
 			x: Math.round(clientX + window.scrollX),
@@ -44,7 +51,18 @@ function clientToPage(clientX, clientY) {
  * Local-only pose placer. Gated by import.meta.env.DEV at the call site.
  * Open with ?poseEdit=1 or Ctrl+Shift+P on a project detail page.
  */
-function DevPoseEditor({ pageId }) {
+function resolvePoseAssets(assetSet) {
+	if (assetSet === "museum") {
+		return { keys: MUSEUM_POSE_KEYS, src: MUSEUM_POSE_SRC };
+	}
+	return { keys: PROJECT_POSE_KEYS, src: PROJECT_POSE_SRC };
+}
+
+function DevPoseEditor({
+	pageId,
+	rootSelector = ".project-detail",
+	assetSet = "project",
+}) {
 	const [enabled, setEnabled] = useState(() => {
 		const params = new URLSearchParams(window.location.search);
 		return params.get("poseEdit") === "1";
@@ -54,6 +72,7 @@ function DevPoseEditor({ pageId }) {
 	const [copied, setCopied] = useState(false);
 	const [panelHidden, setPanelHidden] = useState(false);
 	const dragRef = useRef(null);
+	const poseAssets = useMemo(() => resolvePoseAssets(assetSet), [assetSet]);
 
 	useEffect(() => {
 		setPlacements(loadPlacements(pageId));
@@ -66,11 +85,11 @@ function DevPoseEditor({ pageId }) {
 	}, [enabled, pageId, placements]);
 
 	useEffect(() => {
-		const root = getPageRoot();
+		const root = getPageRoot(rootSelector);
 		if (!root) return undefined;
 		root.classList.toggle("is-pose-editing", enabled);
 		return () => root.classList.remove("is-pose-editing");
-	}, [enabled]);
+	}, [enabled, rootSelector]);
 
 	useEffect(() => {
 		const setFlag = (next) => {
@@ -125,7 +144,7 @@ function DevPoseEditor({ pageId }) {
 	);
 
 	const addPose = (pose) => {
-		const anchor = clientToPage(120, 180);
+		const anchor = clientToPage(120, 180, rootSelector);
 		const next = {
 			id: createId(),
 			pose,
@@ -148,7 +167,7 @@ function DevPoseEditor({ pageId }) {
 		event.preventDefault();
 		event.stopPropagation();
 		setSelectedId(placement.id);
-		const point = clientToPage(event.clientX, event.clientY);
+		const point = clientToPage(event.clientX, event.clientY, rootSelector);
 		dragRef.current = {
 			id: placement.id,
 			offsetX: point.x - placement.x,
@@ -160,7 +179,7 @@ function DevPoseEditor({ pageId }) {
 	const onPointerMove = (event) => {
 		const drag = dragRef.current;
 		if (!drag) return;
-		const point = clientToPage(event.clientX, event.clientY);
+		const point = clientToPage(event.clientX, event.clientY, rootSelector);
 		const x = Math.round(point.x - drag.offsetX);
 		const y = Math.round(point.y - drag.offsetY);
 		setPlacements((prev) =>
@@ -213,7 +232,7 @@ function DevPoseEditor({ pageId }) {
 				{placements.map((placement) => (
 					<img
 						key={placement.id}
-						src={POSE_SRC[placement.pose]}
+						src={poseAssets.src[placement.pose]}
 						alt=""
 						className={`dev-pose-item${selectedId === placement.id ? " is-selected" : ""}`}
 						style={{
@@ -258,11 +277,11 @@ function DevPoseEditor({ pageId }) {
 				<p className="dev-pose-panel-ui__help">
 					Click a pose to add it, then drag. Height slider scales it. Del
 					removes. Press <kbd>H</kbd> to hide this panel while placing.
-					Positions save in localStorage for this project.
+					Positions save in localStorage for this page.
 				</p>
 
 				<div className="dev-pose-palette">
-					{POSE_KEYS.map((pose) => (
+					{poseAssets.keys.map((pose) => (
 						<button
 							key={pose}
 							type="button"
@@ -270,7 +289,7 @@ function DevPoseEditor({ pageId }) {
 							onClick={() => addPose(pose)}
 							title={`Add ${pose}`}
 						>
-							<img src={POSE_SRC[pose]} alt="" />
+							<img src={poseAssets.src[pose]} alt="" />
 							<span>{pose}</span>
 						</button>
 					))}

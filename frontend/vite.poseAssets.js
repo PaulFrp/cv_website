@@ -3,11 +3,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const VIRTUAL_ID = "virtual:pose-assets";
-const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
+const PROJECT_VIRTUAL_ID = "virtual:pose-assets";
+const PROJECT_RESOLVED_VIRTUAL_ID = `\0${PROJECT_VIRTUAL_ID}`;
+const MUSEUM_VIRTUAL_ID = "virtual:museum-pose-assets";
+const MUSEUM_RESOLVED_VIRTUAL_ID = `\0${MUSEUM_VIRTUAL_ID}`;
 
-function positionsDir() {
+function projectPositionsDir() {
 	return path.resolve(__dirname, "public/positions");
+}
+
+function museumPositionsDir() {
+	return path.resolve(__dirname, "public/museum/bg_char");
 }
 
 function fileToPoseKey(fileName) {
@@ -17,8 +23,7 @@ function fileToPoseKey(fileName) {
 		.replace(/_/g, "-");
 }
 
-function readPoseAssets() {
-	const dir = positionsDir();
+function readPoseAssets(dir, srcPrefix) {
 	if (!fs.existsSync(dir)) return [];
 
 	return fs
@@ -28,12 +33,12 @@ function readPoseAssets() {
 		.map((file) => ({
 			pose: fileToPoseKey(file),
 			file,
-			src: `/positions/${file}`,
+			src: `${srcPrefix}/${file}`,
 		}));
 }
 
-function manifestModuleSource() {
-	const assets = readPoseAssets();
+function manifestModuleSource(dir, srcPrefix) {
+	const assets = readPoseAssets(dir, srcPrefix);
 	const srcMap = Object.fromEntries(assets.map((asset) => [asset.pose, asset.src]));
 	return `export const POSE_ASSETS = ${JSON.stringify(assets)};
 export const POSE_SRC = ${JSON.stringify(srcMap)};
@@ -41,27 +46,50 @@ export const POSE_KEYS = POSE_ASSETS.map((asset) => asset.pose);
 `;
 }
 
-/** Exposes every PNG in public/positions via `virtual:pose-assets`. */
+function invalidateModule(server, resolvedId) {
+	const mod = server.moduleGraph.getModuleById(resolvedId);
+	if (mod) {
+		server.moduleGraph.invalidateModule(mod);
+	}
+	server.ws.send({ type: "full-reload", path: "*" });
+}
+
+function isUnderDir(filePath, dir) {
+	const normalizedFilePath = filePath.replace(/\\/g, "/");
+	const normalizedDir = dir.replace(/\\/g, "/");
+	return normalizedFilePath.startsWith(normalizedDir);
+}
+
+/** Exposes every PNG in public/positions and public/museum/bg_char via virtual modules. */
 export function poseAssetsPlugin() {
 	return {
 		name: "pose-assets",
 		resolveId(id) {
-			if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID;
+			if (id === PROJECT_VIRTUAL_ID) return PROJECT_RESOLVED_VIRTUAL_ID;
+			if (id === MUSEUM_VIRTUAL_ID) return MUSEUM_RESOLVED_VIRTUAL_ID;
 		},
 		load(id) {
-			if (id === RESOLVED_VIRTUAL_ID) return manifestModuleSource();
+			if (id === PROJECT_RESOLVED_VIRTUAL_ID) {
+				return manifestModuleSource(projectPositionsDir(), "/positions");
+			}
+			if (id === MUSEUM_RESOLVED_VIRTUAL_ID) {
+				return manifestModuleSource(museumPositionsDir(), "/museum/bg_char");
+			}
 		},
 		configureServer(server) {
-			const dir = positionsDir();
-			server.watcher.add(dir);
+			const projectDir = projectPositionsDir();
+			const museumDir = museumPositionsDir();
+			server.watcher.add(projectDir);
+			server.watcher.add(museumDir);
 
 			const refresh = (filePath) => {
-				if (!filePath.replace(/\\/g, "/").includes("/positions/")) return;
-				const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_ID);
-				if (mod) {
-					server.moduleGraph.invalidateModule(mod);
+				if (isUnderDir(filePath, projectDir)) {
+					invalidateModule(server, PROJECT_RESOLVED_VIRTUAL_ID);
+					return;
 				}
-				server.ws.send({ type: "full-reload", path: "*" });
+				if (isUnderDir(filePath, museumDir)) {
+					invalidateModule(server, MUSEUM_RESOLVED_VIRTUAL_ID);
+				}
 			};
 
 			server.watcher.on("add", refresh);

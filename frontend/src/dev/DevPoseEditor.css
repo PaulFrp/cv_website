@@ -23,7 +23,8 @@
 	right: 1rem;
 }
 
-.project-detail.is-pose-editing {
+.project-detail.is-pose-editing,
+.museum-page.is-pose-editing {
 	position: relative;
 }
 

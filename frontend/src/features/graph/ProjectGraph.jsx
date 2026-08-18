@@ -23,10 +23,6 @@ const OVERLAP_CORRECTION = 0.55;
 const CLICK_MOVE_THRESHOLD = 6;
 const DOUBLE_CLICK_MS = 400;
 
-function isDarkMode() {
-	return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
 function measureNode(ctx, label) {
 	const lines = label.split("\n");
 	ctx.font = FONT;
@@ -321,7 +317,7 @@ function ProjectGraph() {
 		let logicalWidth = 0;
 		let logicalHeight = 0;
 		let hoveredId = null;
-		let dark = isDarkMode();
+		const dark = false;
 
 		function resize() {
 			const dpr = window.devicePixelRatio || 1;
@@ -492,11 +488,6 @@ function ProjectGraph() {
 			}
 		}
 
-		const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
-		function onDarkChange(e) {
-			dark = e.matches;
-		}
-
 		resize();
 		rafRef.current = requestAnimationFrame(tick);
 
@@ -508,7 +499,6 @@ function ProjectGraph() {
 		canvas.addEventListener("pointerup", onPointerUp);
 		canvas.addEventListener("pointercancel", onPointerUp);
 		canvas.addEventListener("pointerleave", onPointerLeave);
-		darkQuery.addEventListener("change", onDarkChange);
 
 		return () => {
 			cancelAnimationFrame(rafRef.current);
@@ -518,7 +508,6 @@ function ProjectGraph() {
 			canvas.removeEventListener("pointerup", onPointerUp);
 			canvas.removeEventListener("pointercancel", onPointerUp);
 			canvas.removeEventListener("pointerleave", onPointerLeave);
-			darkQuery.removeEventListener("change", onDarkChange);
 		};
 	}, [navigate]);
 

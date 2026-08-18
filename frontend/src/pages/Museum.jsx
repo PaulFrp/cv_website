@@ -1,4 +1,9 @@
+import { lazy, Suspense } from "react";
 import { PixelMuseum } from "../features/museum";
+
+const DevPoseEditor = import.meta.env.DEV
+	? lazy(() => import("../dev/DevPoseEditor"))
+	: null;
 
 function Museum() {
 	return (
@@ -9,6 +14,15 @@ function Museum() {
 				project. Press H to toggle collision/debug overlays if needed.
 			</p>
 			<PixelMuseum />
+			{DevPoseEditor && (
+				<Suspense fallback={null}>
+					<DevPoseEditor
+						pageId="museum"
+						rootSelector=".museum-page"
+						assetSet="museum"
+					/>
+				</Suspense>
+			)}
 		</section>
 	);
 }
