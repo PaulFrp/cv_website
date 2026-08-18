@@ -1,0 +1,195 @@
+.dev-pose-fab {
+	position: fixed;
+	right: 1rem;
+	bottom: 1rem;
+	z-index: 9998;
+	padding: 0.45rem 0.7rem;
+	border: 1px solid #7a6a58;
+	border-radius: 999px;
+	background: rgba(28, 24, 20, 0.92);
+	color: #f0d9a8;
+	font: 600 0.75rem/1 system-ui, sans-serif;
+	cursor: pointer;
+	opacity: 0.55;
+}
+
+.dev-pose-fab:hover {
+	opacity: 1;
+}
+
+.dev-pose-fab--show-panel {
+	opacity: 0.9;
+	bottom: 1rem;
+	right: 1rem;
+}
+
+.project-detail.is-pose-editing {
+	position: relative;
+}
+
+.dev-pose-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 40;
+	pointer-events: none;
+}
+
+.dev-pose-item {
+	position: absolute;
+	width: auto;
+	max-width: none;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	cursor: grab;
+	pointer-events: auto;
+	user-select: none;
+	touch-action: none;
+}
+
+.dev-pose-item.is-selected {
+	outline: 2px dashed #c4a574;
+	outline-offset: 2px;
+}
+
+.dev-pose-item:active {
+	cursor: grabbing;
+}
+
+.dev-pose-panel-ui {
+	position: fixed;
+	top: 4.5rem;
+	right: 0.75rem;
+	z-index: 9999;
+	width: min(20rem, calc(100vw - 1.5rem));
+	max-height: calc(100vh - 5.5rem);
+	overflow: auto;
+	padding: 0.75rem;
+	border: 1px solid #7a6a58;
+	border-radius: 10px;
+	background: rgba(28, 24, 20, 0.96);
+	color: #e8e0d4;
+	font: 0.75rem/1.35 system-ui, sans-serif;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dev-pose-panel-ui.is-hidden {
+	display: none;
+}
+
+.dev-pose-panel-ui__header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.dev-pose-panel-ui__header strong {
+	flex: 1;
+}
+
+.dev-pose-panel-ui__hint {
+	color: #c4a574;
+}
+
+.dev-pose-panel-ui__header button,
+.dev-pose-actions button,
+.dev-pose-selected button {
+	border: 1px solid #7a6a58;
+	border-radius: 6px;
+	background: #3a342c;
+	color: #f0d9a8;
+	padding: 0.3rem 0.55rem;
+	cursor: pointer;
+	font: inherit;
+}
+
+.dev-pose-panel-ui__help {
+	margin: 0 0 0.75rem;
+	color: #b8b0a4;
+}
+
+.dev-pose-panel-ui__help kbd {
+	display: inline-block;
+	padding: 0.05rem 0.3rem;
+	border: 1px solid #7a6a58;
+	border-radius: 4px;
+	background: #2a2520;
+	font: 0.7rem/1.2 ui-monospace, monospace;
+}
+
+.dev-pose-palette {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.4rem;
+	margin-bottom: 0.75rem;
+}
+
+.dev-pose-palette__btn {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0.35rem;
+	border: 1px solid #5a5044;
+	border-radius: 6px;
+	background: #2a2520;
+	color: #e8e0d4;
+	cursor: pointer;
+	font: inherit;
+}
+
+.dev-pose-palette__btn img {
+	height: 2.4rem;
+	width: auto;
+	image-rendering: pixelated;
+}
+
+.dev-pose-palette__btn span {
+	font-size: 0.65rem;
+}
+
+.dev-pose-selected {
+	display: grid;
+	gap: 0.45rem;
+	margin-bottom: 0.75rem;
+	padding: 0.55rem;
+	border: 1px solid #5a5044;
+	border-radius: 6px;
+	background: #221e19;
+}
+
+.dev-pose-selected label {
+	display: grid;
+	grid-template-columns: 3.2rem 1fr auto;
+	gap: 0.35rem;
+	align-items: center;
+}
+
+.dev-pose-selected input[type="number"] {
+	width: 100%;
+	border: 1px solid #5a5044;
+	border-radius: 4px;
+	background: #1a1714;
+	color: #e8e0d4;
+	padding: 0.2rem 0.35rem;
+}
+
+.dev-pose-actions {
+	display: flex;
+	gap: 0.4rem;
+	margin-bottom: 0.55rem;
+}
+
+.dev-pose-export {
+	margin: 0;
+	padding: 0.5rem;
+	max-height: 10rem;
+	overflow: auto;
+	border-radius: 6px;
+	background: #161310;
+	color: #d6cbbb;
+	font-size: 0.65rem;
+}

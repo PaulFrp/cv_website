@@ -159,11 +159,6 @@
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.project-card-highlight {
-	box-shadow: 0 0 0 2px #7f77dd;
-	transition: box-shadow 0.3s ease;
-}
-
 .back-link {
 	display: inline-block;
 	margin-bottom: 1rem;
@@ -185,6 +180,7 @@
 .project-detail-content {
 	padding-top: 1.5rem;
 	border-top: 1px solid #e0e0e0;
+	overflow: visible;
 }
 
 .project-detail-placeholder {
@@ -512,6 +508,36 @@
 .detail-challenge h3 + p,
 .detail-section p + p {
 	margin-top: 0.75rem;
+}
+
+.detail-challenge-note {
+	margin: 0 0 1rem;
+	padding: 0.9rem 1.1rem;
+	color: #555;
+	line-height: 1.55;
+	background: #f7f6f3;
+	border-left: 3px solid #c4a574;
+	border-radius: 0 8px 8px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	.detail-challenge-note {
+		color: #b4b2a9;
+		background: #2a2926;
+		border-left-color: #c4a574;
+	}
+}
+
+/* Pixel character poses around project detail boxes */
+.character-pose {
+	display: block;
+	height: auto;
+	width: auto;
+	max-width: none;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	pointer-events: none;
+	user-select: none;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -842,6 +868,17 @@
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
+}
+
+.pixel-museum-label-link {
+	font-size: 0.78rem;
+	color: #f0d9a8;
+	text-decoration: underline;
+	white-space: nowrap;
+}
+
+.pixel-museum-label-link:hover {
+	color: #fff;
 }
 
 .pixel-museum-controls {

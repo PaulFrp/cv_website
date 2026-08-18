@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import ProjectGraph from "../components/ProjectGraph";
-import { projects } from "../data/projects";
+import { ProjectGraph } from "../features/graph";
+import { projects } from "../features/projects";
+import { getProjectDescription } from "../shared/utils/projectText";
 
 function Projects() {
 	return (
@@ -21,7 +22,9 @@ function Projects() {
 					>
 						<h2 className="project-card-title">{project.title}</h2>
 						{project.description && (
-							<p className="project-card-description">{project.description}</p>
+							<p className="project-card-description">
+								{getProjectDescription(project.description)}
+							</p>
 						)}
 					</Link>
 				))}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CATEGORIES, graphEdges, graphNodes, LEGEND_ITEMS } from "../data/projectGraph";
+import { CATEGORIES, graphEdges, graphNodes, LEGEND_ITEMS } from "./graphData";
 
 const MIN_WIDTH = 72;
 const HORIZONTAL_PADDING = 24;

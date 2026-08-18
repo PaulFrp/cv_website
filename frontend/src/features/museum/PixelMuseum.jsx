@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { projects } from "../data/projects";
+import { Link } from "react-router-dom";
+import { projects } from "../projects/data/projects";
 import {
 	MUSEUM_SIZE,
 	MUSEUM_STANDS_FALLBACK,
 	SPAWN,
-} from "../data/museumLayout";
-import { getShortProjectBlurb } from "../utils/projectText";
+} from "./museumLayout";
+import { getShortProjectBlurb } from "../../shared/utils/projectText";
 
 const PLAYER_SPEED = 140;
 const PROXIMITY = 70;
@@ -331,79 +332,6 @@ function chromaKeySheet(image) {
 	return c;
 }
 
-/**
- * museum.png currently has the same red/blue markup baked in.
- * Rebuild a clean display image by inpainting those overlay pixels from neighbors.
- * Collision still uses museum_outline.png unchanged.
- */
-function scrubOverlayColors(image) {
-	const w = image.naturalWidth || image.width;
-	const h = image.naturalHeight || image.height;
-	const canvas = document.createElement("canvas");
-	canvas.width = w;
-	canvas.height = h;
-	const ctx = canvas.getContext("2d", { willReadFrequently: true });
-	ctx.drawImage(image, 0, 0);
-	const img = ctx.getImageData(0, 0, w, h);
-	const d = img.data;
-	const overlay = new Uint8Array(w * h);
-
-	for (let y = 0; y < h; y++) {
-		for (let x = 0; x < w; x++) {
-			const i = (y * w + x) * 4;
-			if (
-				isRedBoundary(d[i], d[i + 1], d[i + 2]) ||
-				isBlueMarker(d[i], d[i + 1], d[i + 2])
-			) {
-				overlay[y * w + x] = 1;
-			}
-		}
-	}
-
-	let remaining = true;
-	for (let pass = 0; pass < 100 && remaining; pass++) {
-		remaining = false;
-		const cleared = [];
-		for (let y = 0; y < h; y++) {
-			for (let x = 0; x < w; x++) {
-				const idx = y * w + x;
-				if (!overlay[idx]) continue;
-				let sr = 0;
-				let sg = 0;
-				let sb = 0;
-				let n = 0;
-				for (let dy = -1; dy <= 1; dy++) {
-					for (let dx = -1; dx <= 1; dx++) {
-						if (dx === 0 && dy === 0) continue;
-						const nx = x + dx;
-						const ny = y + dy;
-						if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
-						const nidx = ny * w + nx;
-						if (overlay[nidx]) continue;
-						const ni = nidx * 4;
-						sr += d[ni];
-						sg += d[ni + 1];
-						sb += d[ni + 2];
-						n += 1;
-					}
-				}
-				if (n > 0) {
-					const i = idx * 4;
-					d[i] = Math.round(sr / n);
-					d[i + 1] = Math.round(sg / n);
-					d[i + 2] = Math.round(sb / n);
-					cleared.push(idx);
-					remaining = true;
-				}
-			}
-		}
-		for (const idx of cleared) overlay[idx] = 0;
-	}
-
-	ctx.putImageData(img, 0, 0);
-	return canvas;
-}
-
 function drawPlayer(ctx, sheet, x, y, facing) {
 	const frame = CHAR_FRAMES[facing] || CHAR_FRAMES.down;
 	const scale = CHAR_DRAW_H / frame.sh;
@@ -478,8 +406,6 @@ function PixelMuseum() {
 
 			const { walk, stands, worldW, worldH, debugCanvas } =
 				parseOutline(outline);
-			// Prefer the clean museum art as-is; scrub only if markup slipped in.
-			const displayBg = scrubOverlayColors(bg);
 			const charSheet = chromaKeySheet(charImg);
 			const exhibits = layoutExhibits(stands, projects);
 
@@ -504,7 +430,7 @@ function PixelMuseum() {
 			}
 
 			stateRef.current = {
-				bg: displayBg,
+				bg,
 				charSheet,
 				walk,
 				worldW,
@@ -703,6 +629,12 @@ function PixelMuseum() {
 							#{nearby.stand} · {nearby.title}
 						</strong>
 						<span className="pixel-museum-label-blurb">{nearby.blurb}</span>
+						<Link
+							to={`/projects/${nearby.id}`}
+							className="pixel-museum-label-link"
+						>
+							View details →
+						</Link>
 					</>
 				) : (
 					<span className="pixel-museum-caption-idle">

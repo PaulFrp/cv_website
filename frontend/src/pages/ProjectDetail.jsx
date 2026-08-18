@@ -1,8 +1,16 @@
+import { lazy, Suspense } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import PlantTrackerDetailContent from "../components/PlantTrackerDetailContent";
-import ProjectDetailContent from "../components/ProjectDetailContent";
-import { getProjectById } from "../data/projects";
-import { getProjectDetail } from "../data/projectDetails";
+import {
+	getProjectById,
+	getProjectDetail,
+	PlantTrackerDetailContent,
+	ProjectDetailContent,
+} from "../features/projects";
+import { getProjectDescription } from "../shared/utils/projectText";
+
+const DevPoseEditor = import.meta.env.DEV
+	? lazy(() => import("../dev/DevPoseEditor"))
+	: null;
 
 function ProjectDetail() {
 	const { projectId } = useParams();
@@ -22,7 +30,9 @@ function ProjectDetail() {
 			</Link>
 			<h1>{pageTitle}</h1>
 			{!detail && project.description && (
-				<p className="project-detail-summary">{project.description}</p>
+				<p className="project-detail-summary">
+					{getProjectDescription(project.description)}
+				</p>
 			)}
 			<div className="project-detail-content">
 				{detail?.type === "plant-tracker" ? (
@@ -35,6 +45,11 @@ function ProjectDetail() {
 					</p>
 				)}
 			</div>
+			{DevPoseEditor && (
+				<Suspense fallback={null}>
+					<DevPoseEditor pageId={projectId} />
+				</Suspense>
+			)}
 		</section>
 	);
 }

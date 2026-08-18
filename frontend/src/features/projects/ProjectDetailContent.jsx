@@ -1,7 +1,42 @@
+import { toParagraphs } from "../../shared/utils/projectText";
+
+function Paragraphs({ text, className }) {
+	return toParagraphs(text).map((paragraph, index) => (
+		<p key={`${index}-${paragraph.slice(0, 24)}`} className={className}>
+			{paragraph}
+		</p>
+	));
+}
+
+function normalizeChallenges(challenges = []) {
+	const notes = [];
+	const items = [];
+
+	for (const entry of challenges) {
+		if (typeof entry === "string") {
+			notes.push(entry.trim());
+			continue;
+		}
+		if (entry && typeof entry === "object") {
+			items.push({
+				...entry,
+				problem: entry.problem,
+				solution: Array.isArray(entry.solution) ? entry.solution : [],
+			});
+		}
+	}
+
+	return { notes, items };
+}
+
 function ProjectDetailContent({ detail }) {
+	const { notes: challengeNotes, items: challengeItems } = normalizeChallenges(
+		detail.challenges,
+	);
+
 	return (
 		<>
-			<p className="project-detail-pitch">{detail.pitch}</p>
+			<Paragraphs text={detail.pitch} className="project-detail-pitch" />
 
 			<section className="detail-section">
 				<h2>Tech stack</h2>
@@ -27,19 +62,25 @@ function ProjectDetailContent({ detail }) {
 
 			<section className="detail-section">
 				<h2>Overview</h2>
-				<p>{detail.overview}</p>
+				<Paragraphs text={detail.overview} />
 			</section>
 
 			<section className="detail-section">
 				<h2>Problems encountered &amp; solutions</h2>
-				{detail.challenges.map((challenge, index) => (
-					<article key={challenge.title} className="detail-challenge">
+				{challengeNotes.map((note) => (
+					<p key={note.slice(0, 48)} className="detail-challenge-note">
+						{note}
+					</p>
+				))}
+				{challengeItems.map((challenge, index) => (
+					<article key={challenge.title || index} className="detail-challenge">
 						<h3>
 							{index + 1}. {challenge.title}
 						</h3>
-						<p>
-							<strong>Problem:</strong> {challenge.problem}
-						</p>
+						<div>
+							<strong>Problem:</strong>
+							<Paragraphs text={challenge.problem} />
+						</div>
 						<div>
 							<strong>Solution:</strong>
 							<ul>
@@ -115,7 +156,7 @@ function ProjectDetailContent({ detail }) {
 
 			<section className="detail-section">
 				<h2>Lessons learned</h2>
-				<p>{detail.lessonsLearned}</p>
+				<Paragraphs text={detail.lessonsLearned} />
 			</section>
 		</>
 	);

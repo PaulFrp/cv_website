@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 function PlantTrackerDetailContent({ detail }) {
-	const photos = detail.hardwareAssembly.photos ?? [];
+	const photos = detail.hardwareAssembly.photos ?? []; //Sorcery
 	const visibleCount = 4;
 	const [carouselStart, setCarouselStart] = useState(0);
 	const [activePhotoIndex, setActivePhotoIndex] = useState(null);

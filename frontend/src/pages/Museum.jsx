@@ -1,4 +1,4 @@
-import PixelMuseum from "../components/PixelMuseum";
+import { PixelMuseum } from "../features/museum";
 
 function Museum() {
 	return (

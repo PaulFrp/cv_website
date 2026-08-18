@@ -1,4 +1,5 @@
-// I want to make this as a Museum, I need pixel Art and a small perso that looks like me that you can control
+export const FEATURED_PROJECT_IDS = ["xp-tracker", "plant-tracker", "nas"];
+
 export const projects = [
 	{
 		id: "nas",
@@ -9,82 +10,105 @@ export const projects = [
 	{
 		id: "plant-tracker",
 		title: "Plant health tracker",
-		description:[ 
+		description: [
 			"A comprehensive project that I started as a way to reconciliate all of the different skills I had been learning over the years ",
 			"(Programming, electronics, soldering, 3D-printing). ",
-		]
+		],
 	},
 	{
 		id: "esp32",
 		title: "ESP32 automatic turn on and off",
-		description: "Turned an old touch screen into an autonomous dashboard to display my habit and cooking website.",
+		description:
+			"Turned an old touch screen into an autonomous dashboard to display my habit and cooking website.",
 	},
 	{
 		id: "minigame",
 		title: "Mini game Website",
-		description:[
+		description: [
 			"A small project in the beginning turned into one of my most complex. ",
 			"Started with simple static mini games. ",
 			"Then I decided to increase the scope to more complex simultaneous real time games across multiple devices. ",
-		]
+		],
 	},
 	{
 		id: "xp-tracker",
 		title: "Xp-tracker",
-		description:[
+		description: [
 			"Another small website in the beginning meant to track and reward habits building. ",
 			"It was later incremented with a collaborative cooking Drive and an ESP32 plant-sensor dashboard.",
-		]
+		],
 	},
 	{
 		id: "ekimetrics",
 		title: "Ekimetrics Hackathon",
-		description:[
+		description: [
 			"A hackathon organized by Ekimetrics where 2 teams were clashing. ",
 			"Red team goal was to create an Agent that will voluntarily hallucinate / make mistakes on financial data. ",
 			"Blue team goal was to detect those anomalies.",
-		]
+		],
 	},
 	{
 		id: "kaggle",
 		title: "Kaggle competition",
-		description:[
+		description: [
 			"A Kaggle competition where we had to train models to predict which consumers a company should focus marketing on. ",
 			"This project taught me a lot about working with new developers.",
-		]
+		],
 	},
 	{
 		id: "obsidian-clone",
 		title: "Python Obsidian like project",
-		description:[
+		description: [
 			"Group project for our python class. ",
 			"We create a small app imitating Obsidian, smart identification of subject and graphs to display the links of everything together.",
-		]
+		],
 	},
 	{
 		id: "noise-map",
 		title: "ML Noise map predictor",
-		description:[
+		description: [
 			"Training models to predict noise first in Paris with the goal to then apply to other similar cities like Lyon. ",
 			"It focused on a list of attributes and geolocation data.",
-		]
+		],
 	},
 	{
 		id: "maia",
 		title: "Projet Maia",
-		description:[
+		description: [
 			"Helped a friend on a work mission asking to find all the companies attending a talk in the sector of defence. ",
 			"Then tried to retrieve as many available public information about the company (Founders, CA, find others in the discussion with Mayo).",
-		]
+		],
 	},
 	{
 		id: "pokemon",
 		title: "Projet Pokémon Artefact",
-		description:[
+		description: [
 			"Extracting comments and discussions on forums to establish what the fans are interested in mostly, ",
 			"created visualizations such as word clouds to see the most preeminent ones. Had to find a way to exclude repeating words like “the” “me” etc. ",
 			"If remember correctly I used a library of the common words Electronics.",
-		]
+		],
+	},
+];
+
+/** Planned / in-progress ideas shown on the home page. */
+export const futureProjects = [
+	{
+		id: "pcb",
+		title: "PCB design learning",
+		description:
+			"In the aim of making circuits more replicable and smaller size I would like to be able to design my own PCBs.",
+	},
+	{
+		id: "backtesting",
+		title: "Markets backtesting",
+		description:
+			"In order to learn more about Quant finance I would like to have comprehensive projects.",
+	},
+	{
+		id: "ci-cd",
+		title: "CI/CD",
+		description:
+			"Properly learning and setting up CI/CD in current and new projects.",
 	},
 ];
 

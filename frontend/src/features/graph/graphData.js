@@ -25,18 +25,20 @@ export const graphNodes = [
 			"Manga-inspired stat tracker with badges, leaderboards, daily challenges, cooking recipes, and plant monitoring.",
 	},
 	{
-		id: "web-scraping",
-		label: "Web scraping",
+		id: "maia",
+		label: "Projet Maia",
 		category: "web",
-		cardId: "web-scraping",
+		cardId: "maia",
 		description:
-			"Collection of scraping projects — defence sector company research and Pokémon forum analysis with word clouds.",
+			"Defence-sector company research — scraped public records on founders, revenue, and related entities.",
 	},
 	{
-		id: "culture-website",
-		label: "Culture website",
+		id: "pokemon",
+		label: "Pokémon Artefact",
 		category: "web",
-		description: "A web project exploring cultural content and shared experiences.",
+		cardId: "pokemon",
+		description:
+			"Forum comment mining with word clouds and stop-word filtering to surface fan interests.",
 	},
 	{
 		id: "obsidian-clone",
@@ -47,24 +49,12 @@ export const graphNodes = [
 			"Python group project mimicking Obsidian — linked notes, subject detection, and relationship graphs.",
 	},
 	{
-		id: "mood-music",
-		label: "Mood music",
-		category: "web",
-		description: "A web app for discovering and organizing music by mood.",
-	},
-	{
 		id: "ekimetrics",
 		label: "Ekimetrics hackathon",
 		category: "data",
 		cardId: "ekimetrics",
 		description:
 			"Red team built a hallucinating data agent; blue team detected the injected anomalies.",
-	},
-	{
-		id: "mmm",
-		label: "MMM examples",
-		category: "data",
-		description: "Marketing mix modeling experiments and example implementations.",
 	},
 	{
 		id: "kaggle",
@@ -153,15 +143,13 @@ export const graphEdges = [
 	{ source: "nas", target: "docker-infra" },
 	{ source: "ekimetrics", target: "llm-agents" },
 	{ source: "ekimetrics", target: "nlp-text" },
-	{ source: "mood-music", target: "llm-agents" },
-	{ source: "mmm", target: "kaggle" },
-	{ source: "mmm", target: "data-viz" },
 	{ source: "kaggle", target: "team-challenges" },
 	{ source: "noise-map", target: "team-challenges" },
 	{ source: "noise-map", target: "data-viz" },
-	{ source: "web-scraping", target: "nlp-text" },
-	{ source: "web-scraping", target: "data-viz" },
+	{ source: "maia", target: "nlp-text" },
+	{ source: "maia", target: "data-viz" },
+	{ source: "pokemon", target: "nlp-text" },
+	{ source: "pokemon", target: "data-viz" },
 	{ source: "obsidian-clone", target: "nlp-text" },
 	{ source: "obsidian-clone", target: "data-viz" },
-	{ source: "culture-website", target: "data-viz" },
 ];

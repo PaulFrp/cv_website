@@ -1,11 +1,11 @@
 import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import Navbar from "./shared/ui/Navbar";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Museum from "./pages/Museum";
 import CV from "./pages/CV";
-import "./App.css";
+import "./shared/styles/App.css";
 
 function App() {
 	return (

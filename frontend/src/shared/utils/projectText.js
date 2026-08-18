@@ -6,6 +6,15 @@ export function getProjectDescription(description) {
 	return (description || "").trim();
 }
 
+/** Turn string | string[] into paragraph strings for rendering. */
+export function toParagraphs(text) {
+	if (Array.isArray(text)) {
+		return text.map((p) => String(p).trim()).filter(Boolean);
+	}
+	const value = (text || "").trim();
+	return value ? [value] : [];
+}
+
 /** Short label for museum proximity UI. */
 export function getShortProjectBlurb(description, maxLen = 140) {
 	const full = getProjectDescription(description);
