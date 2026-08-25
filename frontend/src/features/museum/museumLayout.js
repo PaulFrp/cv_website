@@ -27,6 +27,9 @@ export function resolveProjectFromSlug(catalog, slug) {
 	);
 }
 
+/** Shift exhibit art up by this fraction of its drawn height. */
+const EXHIBIT_Y_LIFT = 0.3;
+
 /**
  * Fit exhibit art onto a stand. Pictures hang in wall frames (mostly above the
  * numbered plaque). Pedestal objects sit on the cube, anchored at the base.
@@ -34,13 +37,16 @@ export function resolveProjectFromSlug(catalog, slug) {
 export function exhibitDrawLimits(kind, stand) {
 	if (kind === "pedestal") {
 		return stand === 15
-			? { maxW: 96, maxH: 96, yAnchor: 0.9 }
-			: { maxW: 80, maxH: 80, yAnchor: 0.9 };
+			? { maxW: 150, maxH: 100, yAnchor: 0.9 + EXHIBIT_Y_LIFT }
+			: { maxW: 150, maxH: 100, yAnchor: 0.9 + EXHIBIT_Y_LIFT };
 	}
 	if (stand === 7 || stand === 8) {
-		return { maxW: 118, maxH: 78, yAnchor: 0.55 };
+		return { maxW: 100, maxH: 100, yAnchor: 0.55 + EXHIBIT_Y_LIFT };
 	}
-	return { maxW: 92, maxH: 78, yAnchor: 0.82 };
+	if (stand === 10) {
+		return { maxW: 130, maxH: 120, yAnchor: 1 + EXHIBIT_Y_LIFT };
+	}
+	return { maxW: 170, maxH: 200, yAnchor: 0.82 + EXHIBIT_Y_LIFT };
 }
 
 /** Fallback stand centers if blue detection fails (museum.png space). */

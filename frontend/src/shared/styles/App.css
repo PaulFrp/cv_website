@@ -706,13 +706,23 @@
 }
 
 .pixel-museum-stage {
+	--museum-w: min(calc(100vw - 12rem), calc((100vh - 220px) * 1.875), 1650px);
 	grid-area: stage;
 	position: relative;
-	display: flex;
-	justify-content: center;
-	width: min(calc(100vw - 12rem), calc((100vh - 220px) * 1.25), 1100px);
-	aspect-ratio: 1402 / 1122;
+	width: var(--museum-w);
+	height: min(calc(var(--museum-w) * 1122 / 1402), calc(100vh - 240px));
+	overflow: hidden;
 	line-height: 0;
+	background: #1c1814;
+}
+
+.pixel-museum-world {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: var(--museum-w);
+	aspect-ratio: 1402 / 1122;
+	will-change: transform;
 }
 
 .pixel-museum-loading {
@@ -726,6 +736,7 @@
 	font-size: 0.9rem;
 	line-height: 1.4;
 	background: rgba(20, 16, 12, 0.55);
+	z-index: 1;
 }
 
 .pixel-museum-canvas {
@@ -738,7 +749,7 @@
 
 .pixel-museum-caption {
 	grid-area: caption;
-	width: min(calc(100vw - 12rem), calc((100vh - 220px) * 1.25), 1100px);
+	width: min(calc(100vw - 12rem), calc((100vh - 220px) * 1.875), 1650px);
 	min-height: 2.6rem;
 	max-height: 3.4rem;
 	padding: 0.35rem 0.65rem;
@@ -838,11 +849,12 @@
 	}
 
 	.pixel-museum-stage {
-		width: min(calc(100vw - 7.5rem), calc((100vh - 260px) * 1.25));
+		--museum-w: min(calc(100vw - 7.5rem), calc((100vh - 260px) * 1.875));
+		height: min(calc(var(--museum-w) * 1122 / 1402), calc(100vh - 300px));
 	}
 
 	.pixel-museum-caption {
-		width: min(calc(100vw - 7.5rem), calc((100vh - 260px) * 1.25));
+		width: min(calc(100vw - 7.5rem), calc((100vh - 260px) * 1.875));
 		max-height: 3.8rem;
 	}
 }

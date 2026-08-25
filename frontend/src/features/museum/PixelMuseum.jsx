@@ -353,7 +353,21 @@ function layoutExhibits(stands, catalog, exhibitAssets) {
 	return exhibits;
 }
 
-function drawExhibit(ctx, exhibit) {
+const PEDESTAL_BOUNCE_PX = 5;
+const PEDESTAL_BOUNCE_MS = 1800;
+
+function pedestalBounceOffset(now, stand) {
+	const phase = stand * 0.85;
+	const t = (now / PEDESTAL_BOUNCE_MS) * Math.PI * 2 + phase;
+	const hop = (Math.sin(t) + 1) / 2;
+	return -Math.round(hop * PEDESTAL_BOUNCE_PX);
+}
+
+function exhibitBounces(exhibit) {
+	return exhibit.kind === "pedestal" || exhibit.id === "pcb";
+}
+
+function drawExhibit(ctx, exhibit, now = 0) {
 	const img = exhibit.image;
 	const bounds = exhibit.bounds;
 	if (!img || !bounds) return;
@@ -362,7 +376,10 @@ function drawExhibit(ctx, exhibit) {
 	const dw = Math.round(bounds.sw * scale);
 	const dh = Math.round(bounds.sh * scale);
 	const dx = Math.round(exhibit.x - dw / 2);
-	const dy = Math.round(exhibit.y - dh * limits.yAnchor);
+	let dy = Math.round(exhibit.y - dh * limits.yAnchor);
+	if (exhibitBounces(exhibit)) {
+		dy += pedestalBounceOffset(now, exhibit.stand);
+	}
 	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(
 		img,
@@ -440,8 +457,27 @@ function findNearestExhibit(exhibits, px, py) {
 	return null;
 }
 
+function followPlayerCamera(stageEl, worldEl, player, worldW, worldH) {
+	if (!stageEl || !worldEl) return;
+	const viewW = stageEl.clientWidth;
+	const viewH = stageEl.clientHeight;
+	const mapW = worldEl.offsetWidth;
+	const mapH = worldEl.offsetHeight;
+	if (!viewW || !viewH || !mapW || !mapH) return;
+
+	const scaleX = mapW / worldW;
+	const scaleY = mapH / worldH;
+	let offsetX = player.x * scaleX - viewW / 2;
+	let offsetY = player.y * scaleY - viewH / 2;
+	offsetX = Math.max(0, Math.min(offsetX, Math.max(0, mapW - viewW)));
+	offsetY = Math.max(0, Math.min(offsetY, Math.max(0, mapH - viewH)));
+	worldEl.style.transform = `translate(${-Math.round(offsetX)}px, ${-Math.round(offsetY)}px)`;
+}
+
 function PixelMuseum() {
 	const canvasRef = useRef(null);
+	const stageRef = useRef(null);
+	const worldRef = useRef(null);
 	const keysRef = useRef(new Set());
 	const stateRef = useRef(null);
 	const [nearby, setNearby] = useState(null);
@@ -659,9 +695,9 @@ function PixelMuseum() {
 					.filter((ex) => ex.kind === "pedestal" && ex.image)
 					.sort((a, b) => a.y - b.y);
 
-				for (const ex of pictures) drawExhibit(ctx, ex);
+				for (const ex of pictures) drawExhibit(ctx, ex, now);
 				for (const ex of pedestals) {
-					if (ex.y < player.y) drawExhibit(ctx, ex);
+					if (ex.y < player.y) drawExhibit(ctx, ex, now);
 				}
 
 				if (hit) {
@@ -681,8 +717,16 @@ function PixelMuseum() {
 				);
 
 				for (const ex of pedestals) {
-					if (ex.y >= player.y) drawExhibit(ctx, ex);
+					if (ex.y >= player.y) drawExhibit(ctx, ex, now);
 				}
+
+				followPlayerCamera(
+					stageRef.current,
+					worldRef.current,
+					player,
+					w,
+					h,
+				);
 				raf = requestAnimationFrame(tick);
 			};
 
@@ -738,12 +782,14 @@ function PixelMuseum() {
 		<div className="pixel-museum">
 			<div className="pixel-museum-board">
 				<MuseumFigures side="left" />
-				<div className="pixel-museum-stage">
-					<canvas
-						ref={canvasRef}
-						className="pixel-museum-canvas"
-						aria-label="Pixel art museum. Use WASD or arrow keys to walk."
-					/>
+				<div className="pixel-museum-stage" ref={stageRef}>
+					<div className="pixel-museum-world" ref={worldRef}>
+						<canvas
+							ref={canvasRef}
+							className="pixel-museum-canvas"
+							aria-label="Pixel art museum. Use WASD or arrow keys to walk."
+						/>
+					</div>
 					{!ready && <p className="pixel-museum-loading">Loading museum…</p>}
 				</div>
 				<MuseumFigures side="right" />
