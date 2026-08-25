@@ -7,6 +7,8 @@ const PROJECT_VIRTUAL_ID = "virtual:pose-assets";
 const PROJECT_RESOLVED_VIRTUAL_ID = `\0${PROJECT_VIRTUAL_ID}`;
 const MUSEUM_VIRTUAL_ID = "virtual:museum-pose-assets";
 const MUSEUM_RESOLVED_VIRTUAL_ID = `\0${MUSEUM_VIRTUAL_ID}`;
+const EXHIBITS_VIRTUAL_ID = "virtual:museum-exhibits";
+const EXHIBITS_RESOLVED_VIRTUAL_ID = `\0${EXHIBITS_VIRTUAL_ID}`;
 
 function projectPositionsDir() {
 	return path.resolve(__dirname, "public/positions");
@@ -14,6 +16,48 @@ function projectPositionsDir() {
 
 function museumPositionsDir() {
 	return path.resolve(__dirname, "public/museum/bg_char");
+}
+
+function exhibitFolders() {
+	return [
+		{
+			kind: "picture",
+			dir: path.resolve(__dirname, "public/museum/projects/pictures"),
+			prefix: "/museum/projects/pictures",
+		},
+		{
+			kind: "pedestal",
+			dir: path.resolve(__dirname, "public/museum/projects/pedestal"),
+			prefix: "/museum/projects/pedestal",
+		},
+	];
+}
+
+function readExhibitAssets() {
+	const assets = [];
+	for (const { kind, dir, prefix } of exhibitFolders()) {
+		if (!fs.existsSync(dir)) continue;
+		for (const file of fs
+			.readdirSync(dir)
+			.filter((name) => /\.png$/i.test(name))
+			.sort((a, b) => a.localeCompare(b))) {
+			const match = file.match(/^(.*)_(\d+)\.png$/i);
+			if (!match) continue;
+			assets.push({
+				kind,
+				slug: match[1],
+				stand: Number(match[2]),
+				file,
+				src: `${prefix}/${file}`,
+			});
+		}
+	}
+	return assets;
+}
+
+function exhibitsModuleSource() {
+	return `export const MUSEUM_EXHIBITS = ${JSON.stringify(readExhibitAssets())};
+`;
 }
 
 function fileToPoseKey(fileName) {
@@ -67,6 +111,7 @@ export function poseAssetsPlugin() {
 		resolveId(id) {
 			if (id === PROJECT_VIRTUAL_ID) return PROJECT_RESOLVED_VIRTUAL_ID;
 			if (id === MUSEUM_VIRTUAL_ID) return MUSEUM_RESOLVED_VIRTUAL_ID;
+			if (id === EXHIBITS_VIRTUAL_ID) return EXHIBITS_RESOLVED_VIRTUAL_ID;
 		},
 		load(id) {
 			if (id === PROJECT_RESOLVED_VIRTUAL_ID) {
@@ -75,12 +120,17 @@ export function poseAssetsPlugin() {
 			if (id === MUSEUM_RESOLVED_VIRTUAL_ID) {
 				return manifestModuleSource(museumPositionsDir(), "/museum/bg_char");
 			}
+			if (id === EXHIBITS_RESOLVED_VIRTUAL_ID) {
+				return exhibitsModuleSource();
+			}
 		},
 		configureServer(server) {
 			const projectDir = projectPositionsDir();
 			const museumDir = museumPositionsDir();
+			const exhibitDirs = exhibitFolders().map((folder) => folder.dir);
 			server.watcher.add(projectDir);
 			server.watcher.add(museumDir);
+			for (const dir of exhibitDirs) server.watcher.add(dir);
 
 			const refresh = (filePath) => {
 				if (isUnderDir(filePath, projectDir)) {
@@ -89,6 +139,10 @@ export function poseAssetsPlugin() {
 				}
 				if (isUnderDir(filePath, museumDir)) {
 					invalidateModule(server, MUSEUM_RESOLVED_VIRTUAL_ID);
+					return;
+				}
+				if (exhibitDirs.some((dir) => isUnderDir(filePath, dir))) {
+					invalidateModule(server, EXHIBITS_RESOLVED_VIRTUAL_ID);
 				}
 			};
 

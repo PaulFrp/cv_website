@@ -1,19 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { projects } from "../projects/data/projects";
+import { MUSEUM_EXHIBITS } from "virtual:museum-exhibits";
 import {
+	futureProjects,
+	getProjectById,
+	projects,
+} from "../projects/data/projects";
+import {
+	exhibitDrawLimits,
 	MUSEUM_SIZE,
 	MUSEUM_STANDS_FALLBACK,
+	resolveProjectFromSlug,
 	SPAWN,
 } from "./museumLayout";
 import { getShortProjectBlurb } from "../../shared/utils/projectText";
 import MuseumFigures from "./MuseumFigures";
 
+const MUSEUM_CATALOG = [...projects, ...futureProjects];
+
 const PLAYER_SPEED = 140;
 const PROXIMITY = 70;
 const WALK_CYCLE_DISTANCE = 12;
 const PLAYER_DRAW_H = 96;
-const ASSET_VER = "20260818a";
+const ASSET_VER = "20260823a";
 const MUSEUM_URL = `/museum/museum.png?v=${ASSET_VER}`;
 const OUTLINE_URL = `/museum/museum_outline.png?v=${ASSET_VER}`;
 const CHAR_STRIP_URLS = {
@@ -49,13 +58,48 @@ function isBlueMarker(r, g, b) {
 	return colorDist(r, g, b, OUTLINE_BLUE) <= 55 && b > r && b > g;
 }
 
-function shuffle(list) {
-	const a = [...list];
-	for (let i = a.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[a[i], a[j]] = [a[j], a[i]];
+function opaqueBounds(img) {
+	const w = img.naturalWidth;
+	const h = img.naturalHeight;
+	if (!w || !h) return { sx: 0, sy: 0, sw: w, sh: h };
+	const c = document.createElement("canvas");
+	c.width = w;
+	c.height = h;
+	const ctx = c.getContext("2d", { willReadFrequently: true });
+	ctx.drawImage(img, 0, 0);
+	const { data } = ctx.getImageData(0, 0, w, h);
+	let minX = w;
+	let minY = h;
+	let maxX = 0;
+	let maxY = 0;
+	for (let y = 0; y < h; y++) {
+		for (let x = 0; x < w; x++) {
+			if (data[(y * w + x) * 4 + 3] > 16) {
+				if (x < minX) minX = x;
+				if (y < minY) minY = y;
+				if (x > maxX) maxX = x;
+				if (y > maxY) maxY = y;
+			}
+		}
 	}
-	return a;
+	if (maxX < minX) return { sx: 0, sy: 0, sw: w, sh: h };
+	return { sx: minX, sy: minY, sw: maxX - minX + 1, sh: maxY - minY + 1 };
+}
+
+function makeExhibit(project, stand, asset) {
+	const image = asset?.img && asset.img.naturalWidth ? asset.img : null;
+	return {
+		id: project.id,
+		stand: stand.stand,
+		title: project.title,
+		blurb: getShortProjectBlurb(project.description, 72),
+		x: stand.x,
+		y: stand.y,
+		kind: asset?.kind ?? null,
+		image,
+		bounds: image ? opaqueBounds(image) : null,
+		hasPage: Boolean(getProjectById(project.id)),
+	};
 }
 
 /**
@@ -283,24 +327,54 @@ function canStand(walk, worldW, worldH, x, y) {
 	return walk[fy * worldW + fx] === 1;
 }
 
-function layoutExhibits(stands, list) {
-	const shuffledProjects = shuffle(list);
-	const shuffledStands = shuffle(stands);
-	const count = Math.min(shuffledStands.length, shuffledProjects.length);
+function layoutExhibits(stands, catalog, exhibitAssets) {
+	const byStand = new Map(stands.map((stand) => [stand.stand, stand]));
+	const usedStands = new Set();
+	const usedIds = new Set();
 	const exhibits = [];
-	for (let i = 0; i < count; i++) {
-		const project = shuffledProjects[i];
-		const stand = shuffledStands[i];
-		exhibits.push({
-			id: project.id,
-			stand: stand.stand,
-			title: project.title,
-			blurb: getShortProjectBlurb(project.description, 72),
-			x: stand.x,
-			y: stand.y,
-		});
+
+	for (const asset of exhibitAssets) {
+		const stand = byStand.get(asset.stand);
+		const project = resolveProjectFromSlug(catalog, asset.slug);
+		if (!stand || !project || usedStands.has(stand.stand)) continue;
+		exhibits.push(makeExhibit(project, stand, asset));
+		usedStands.add(stand.stand);
+		usedIds.add(project.id);
+	}
+
+	const leftoverProjects = catalog.filter((project) => !usedIds.has(project.id));
+	const leftoverStands = [...stands]
+		.filter((stand) => !usedStands.has(stand.stand))
+		.sort((a, b) => a.stand - b.stand);
+	const n = Math.min(leftoverProjects.length, leftoverStands.length);
+	for (let i = 0; i < n; i++) {
+		exhibits.push(makeExhibit(leftoverProjects[i], leftoverStands[i], null));
 	}
 	return exhibits;
+}
+
+function drawExhibit(ctx, exhibit) {
+	const img = exhibit.image;
+	const bounds = exhibit.bounds;
+	if (!img || !bounds) return;
+	const limits = exhibitDrawLimits(exhibit.kind, exhibit.stand);
+	const scale = Math.min(limits.maxW / bounds.sw, limits.maxH / bounds.sh);
+	const dw = Math.round(bounds.sw * scale);
+	const dh = Math.round(bounds.sh * scale);
+	const dx = Math.round(exhibit.x - dw / 2);
+	const dy = Math.round(exhibit.y - dh * limits.yAnchor);
+	ctx.imageSmoothingEnabled = false;
+	ctx.drawImage(
+		img,
+		bounds.sx,
+		bounds.sy,
+		bounds.sw,
+		bounds.sh,
+		dx,
+		dy,
+		dw,
+		dh,
+	);
 }
 
 function getStripFrame(strip, frameCount, frameIndex) {
@@ -389,11 +463,18 @@ function PixelMuseum() {
 			charStrips[dir].src = url;
 		});
 
+		const exhibitImgs = MUSEUM_EXHIBITS.map((asset) => {
+			const img = new Image();
+			img.src = `${asset.src}?v=${ASSET_VER}`;
+			return { ...asset, img };
+		});
+
 		let cancelled = false;
 		let raf = 0;
 		let loaded = 0;
 		let started = false;
-		const assetCount = 2 + Object.keys(charStrips).length;
+		const assetCount =
+			2 + Object.keys(charStrips).length + exhibitImgs.length;
 
 		const tryStart = () => {
 			loaded += 1;
@@ -417,7 +498,7 @@ function PixelMuseum() {
 
 			const { walk, stands, worldW, worldH, debugCanvas } =
 				parseOutline(outline, bgWorldW, bgWorldH);
-			const exhibits = layoutExhibits(stands, projects);
+			const exhibits = layoutExhibits(stands, MUSEUM_CATALOG, exhibitImgs);
 
 			let spawnX = SPAWN.x;
 			let spawnY = SPAWN.y;
@@ -552,9 +633,11 @@ function PixelMuseum() {
 					setNearby(
 						hit
 							? {
+									id: hit.id,
 									stand: hit.stand,
 									title: hit.title,
 									blurb: hit.blurb,
+									hasPage: hit.hasPage,
 								}
 							: null,
 					);
@@ -567,6 +650,18 @@ function PixelMuseum() {
 				// Overlay outline hitboxes in the same pixel space as the art
 				if (state.showHitboxes && state.debugCanvas) {
 					ctx.drawImage(state.debugCanvas, 0, 0);
+				}
+
+				const pictures = exhibits.filter(
+					(ex) => ex.kind === "picture" && ex.image,
+				);
+				const pedestals = exhibits
+					.filter((ex) => ex.kind === "pedestal" && ex.image)
+					.sort((a, b) => a.y - b.y);
+
+				for (const ex of pictures) drawExhibit(ctx, ex);
+				for (const ex of pedestals) {
+					if (ex.y < player.y) drawExhibit(ctx, ex);
 				}
 
 				if (hit) {
@@ -584,6 +679,10 @@ function PixelMuseum() {
 					player.step,
 					dx !== 0 || dy !== 0,
 				);
+
+				for (const ex of pedestals) {
+					if (ex.y >= player.y) drawExhibit(ctx, ex);
+				}
 				raf = requestAnimationFrame(tick);
 			};
 
@@ -604,6 +703,14 @@ function PixelMuseum() {
 			img.onload = tryStart;
 			img.onerror = () =>
 				console.error(`Failed to load character_movement/${dir}.png`);
+		});
+		exhibitImgs.forEach(({ src, img }) => {
+			img.onload = tryStart;
+			img.onerror = () => {
+				console.error(`Failed to load exhibit ${src}`);
+				tryStart();
+			};
+			if (img.complete && img.naturalWidth) tryStart();
 		});
 		if (bg.complete && bg.naturalWidth) tryStart();
 		if (outline.complete && outline.naturalWidth) tryStart();
@@ -651,12 +758,16 @@ function PixelMuseum() {
 							#{nearby.stand} · {nearby.title}
 						</strong>
 						<span className="pixel-museum-label-blurb">{nearby.blurb}</span>
-						<Link
-							to={`/projects/${nearby.id}`}
-							className="pixel-museum-label-link"
-						>
-							View details →
-						</Link>
+						{nearby.hasPage ? (
+							<Link
+								to={`/projects/${nearby.id}`}
+								className="pixel-museum-label-link"
+							>
+								View details →
+							</Link>
+						) : (
+							<span className="pixel-museum-label-blurb">Planned project</span>
+						)}
 					</>
 				) : (
 					<span className="pixel-museum-caption-idle">
