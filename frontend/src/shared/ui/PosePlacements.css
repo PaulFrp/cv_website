@@ -1,0 +1,20 @@
+.pose-placements {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	pointer-events: none;
+	overflow: visible;
+}
+
+.pose-placements__item {
+	position: absolute;
+	width: auto;
+	max-width: none;
+	object-fit: contain;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	user-select: none;
+}

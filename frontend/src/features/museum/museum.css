@@ -1,0 +1,256 @@
+/* The museum page breaks out of the normal content column and sits on a
+   spotlit gallery backdrop. */
+.main-content:has(.museum-page) {
+	max-width: none;
+	width: 100%;
+	padding: 0.75rem 1rem 1.25rem;
+	background: radial-gradient(
+		ellipse at center,
+		rgba(74, 63, 53, 0.72) 0%,
+		rgba(122, 106, 88, 0.6) 26%,
+		rgba(196, 165, 116, 0.38) 50%,
+		rgba(236, 228, 214, 0.94) 78%,
+		#f6f2e9 100%
+	);
+}
+
+.museum-page h1 {
+	font-size: 1.35rem;
+	margin-bottom: 0.25rem;
+}
+
+.museum-help {
+	margin-bottom: 0.5rem;
+	font-size: 0.9rem;
+}
+
+.pixel-museum {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.pixel-museum-board {
+	/* Widest the museum can be before it outgrows the window. The stage keeps
+	   the 1402 x 1122 aspect ratio of museum.png. */
+	--museum-width: min(calc(100vw - 12rem), calc((100vh - 220px) * 1.875), 1650px);
+	--museum-height: min(calc(var(--museum-width) * 1122 / 1402), calc(100vh - 240px));
+
+	display: grid;
+	grid-template-columns: minmax(4.5rem, 1fr) auto minmax(4.5rem, 1fr);
+	grid-template-areas:
+		"left stage right"
+		". caption .";
+	align-items: stretch;
+	width: 100%;
+	column-gap: 1.1rem;
+	row-gap: 0.5rem;
+}
+
+/* —— Side decorations —— */
+
+.museum-figures {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	gap: 1.35rem;
+	min-width: 0;
+	height: 100%;
+	pointer-events: none;
+}
+
+.museum-figures--left {
+	grid-area: left;
+	flex-direction: row-reverse;
+	justify-self: end;
+}
+
+.museum-figures--right {
+	grid-area: right;
+	justify-self: start;
+}
+
+.museum-figures-col {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-evenly;
+	gap: 1.1rem;
+	height: 100%;
+	min-width: 0;
+}
+
+/* Inset the sparser outer column so it reads as further away. */
+.museum-figures-col--far {
+	padding-block: 18%;
+}
+
+.museum-figure {
+	display: block;
+	height: 21%;
+	width: auto;
+	max-width: 100%;
+	object-fit: contain;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	user-select: none;
+}
+
+/* —— Stage —— */
+
+/* The stage is a fixed viewport; the world inside it is panned to follow the
+   player (see followPlayer in engine/renderer.js). */
+.pixel-museum-stage {
+	grid-area: stage;
+	position: relative;
+	width: var(--museum-width);
+	height: var(--museum-height);
+	overflow: hidden;
+	line-height: 0;
+	background: #1c1814;
+}
+
+.pixel-museum-world {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: var(--museum-width);
+	aspect-ratio: 1402 / 1122;
+	will-change: transform;
+}
+
+.pixel-museum-canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+}
+
+.pixel-museum-loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	color: #e8e0d4;
+	font-size: 0.9rem;
+	line-height: 1.4;
+	background: rgba(20, 16, 12, 0.55);
+	z-index: 1;
+}
+
+/* —— Caption plaque —— */
+
+.pixel-museum-caption {
+	grid-area: caption;
+	width: var(--museum-width);
+	min-height: 2.6rem;
+	max-height: 3.4rem;
+	padding: 0.35rem 0.65rem;
+	background: rgba(28, 24, 20, 0.92);
+	color: #e8e0d4;
+	border: 2px solid #7a6a58;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.35rem 0.65rem;
+	overflow: hidden;
+	line-height: 1.25;
+}
+
+.pixel-museum-caption.is-visible {
+	border-color: #c4a574;
+}
+
+.pixel-museum-caption-idle {
+	font-size: 0.8rem;
+	color: #b8b0a4;
+}
+
+.pixel-museum-label-title {
+	font-size: 0.85rem;
+	color: #f0d9a8;
+	white-space: nowrap;
+}
+
+.pixel-museum-label-blurb {
+	margin: 0;
+	font-size: 0.78rem;
+	color: #e8e0d4;
+	font-weight: 400;
+	flex: 1;
+	min-width: 12rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+.pixel-museum-label-link {
+	font-size: 0.78rem;
+	color: #f0d9a8;
+	text-decoration: underline;
+	white-space: nowrap;
+}
+
+.pixel-museum-label-link:hover {
+	color: #fff;
+}
+
+/* —— Touch controls —— */
+
+.pixel-museum-controls {
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	user-select: none;
+	touch-action: none;
+}
+
+.pixel-museum-pad-row {
+	display: flex;
+	gap: 0.35rem;
+}
+
+.pixel-museum-pad {
+	width: 3rem;
+	height: 3rem;
+	border: 2px solid #4a3f35;
+	background: #d4c4a8;
+	color: #2e2a26;
+	font-size: 1rem;
+	cursor: pointer;
+	touch-action: none;
+}
+
+.pixel-museum-pad:active {
+	background: #c4a574;
+}
+
+@media (max-width: 720px), (pointer: coarse) {
+	.pixel-museum-controls {
+		display: flex;
+	}
+
+	.main-content:has(.museum-page) {
+		padding: 0.5rem 0.5rem 1rem;
+	}
+
+	.pixel-museum-board {
+		--museum-width: min(calc(100vw - 7.5rem), calc((100vh - 260px) * 1.875));
+		--museum-height: min(calc(var(--museum-width) * 1122 / 1402), calc(100vh - 300px));
+
+		grid-template-columns: minmax(3.2rem, 1fr) auto minmax(3.2rem, 1fr);
+		column-gap: 0.3rem;
+	}
+
+	.pixel-museum-caption {
+		max-height: 3.8rem;
+	}
+}

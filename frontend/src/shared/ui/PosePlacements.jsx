@@ -1,32 +1,28 @@
-import { POSE_SRC as PROJECT_POSE_SRC } from "virtual:pose-assets";
-import { POSE_SRC as MUSEUM_POSE_SRC } from "virtual:museum-pose-assets";
-import { POSE_SRC as MAIN_POSE_SRC } from "virtual:main-pose-assets";
 import { useLayoutEffect, useRef, useState } from "react";
+import { DEFAULT_POSE_SET, getPoseSet } from "../poseAssets";
+import "./PosePlacements.css";
 
-const POSE_SRC_BY_SET = {
-	project: PROJECT_POSE_SRC,
-	museum: MUSEUM_POSE_SRC,
-	main: MAIN_POSE_SRC,
-};
-
-/** Hide poses when the page root is narrower than this (px). */
+/** Below this page width the poses crowd the content, so they are hidden. */
 const DEFAULT_MIN_WIDTH = 900;
 
 /**
- * Renders saved pose placements from the DevPoseEditor JSON.
- * If data.layout.width is set, x/y/height scale with the page root width.
- * Hidden when the page is narrower than layout.minWidth (default 900).
+ * Draws the pixel-art poses saved by the dev pose editor (see src/dev).
+ *
+ * Placements are recorded against the page width they were authored at
+ * (`layout.width`), so everything is scaled by how much the page has grown or
+ * shrunk since. Below `layout.minWidth` the layer is dropped entirely.
  */
 function PosePlacements({
 	data,
-	assetSet = "project",
+	assetSet = DEFAULT_POSE_SET,
 	rootSelector,
 	className = "",
 }) {
 	const layerRef = useRef(null);
 	const [scale, setScale] = useState(1);
 	const [visible, setVisible] = useState(true);
-	const poseSrc = POSE_SRC_BY_SET[assetSet] || PROJECT_POSE_SRC;
+
+	const { src: poseSrc } = getPoseSet(assetSet);
 	const placements = data?.placements ?? [];
 	const designWidth = data?.layout?.width;
 	const minWidth = data?.layout?.minWidth ?? DEFAULT_MIN_WIDTH;
@@ -37,6 +33,7 @@ function PosePlacements({
 				? document.querySelector(rootSelector)
 				: layerRef.current?.closest(".page");
 			const width = root?.clientWidth || designWidth || window.innerWidth;
+
 			setVisible(width >= minWidth);
 			setScale(designWidth ? width / designWidth : 1);
 		};
@@ -57,6 +54,7 @@ function PosePlacements({
 			{placements.map((placement) => {
 				const src = poseSrc[placement.pose];
 				if (!src) return null;
+
 				return (
 					<img
 						key={placement.id}

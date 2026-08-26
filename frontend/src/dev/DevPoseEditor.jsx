@@ -1,170 +1,156 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_POSE_SET, getPoseSet } from "../shared/poseAssets";
+import PoseEditorPanel from "./PoseEditorPanel";
 import {
-	POSE_KEYS as PROJECT_POSE_KEYS,
-	POSE_SRC as PROJECT_POSE_SRC,
-} from "virtual:pose-assets";
-import {
-	POSE_KEYS as MUSEUM_POSE_KEYS,
-	POSE_SRC as MUSEUM_POSE_SRC,
-} from "virtual:museum-pose-assets";
-import {
-	POSE_KEYS as MAIN_POSE_KEYS,
-	POSE_SRC as MAIN_POSE_SRC,
-} from "virtual:main-pose-assets";
+	buildExportPayload,
+	createPlacementId,
+	DEFAULT_POSE_HEIGHT,
+	loadPlacements,
+	savePlacements,
+} from "./posePlacementStore";
 import "./DevPoseEditor.css";
 
-const STORAGE_PREFIX = "cv-pose-editor:";
+const URL_FLAG = "poseEdit";
 
-function loadPlacements(pageId) {
-	try {
-		const raw = localStorage.getItem(`${STORAGE_PREFIX}${pageId}`);
-		return raw ? JSON.parse(raw) : [];
-	} catch {
-		return [];
-	}
+/** Where a freshly added pose lands, relative to the page root. */
+const NEW_POSE_ORIGIN = { x: 120, y: 180 };
+const NEW_POSE_CASCADE = { x: 20, y: 12 };
+
+function setUrlFlag(enabled) {
+	const url = new URL(window.location.href);
+	if (enabled) url.searchParams.set(URL_FLAG, "1");
+	else url.searchParams.delete(URL_FLAG);
+	window.history.replaceState({}, "", url);
 }
 
-function savePlacements(pageId, placements) {
-	localStorage.setItem(`${STORAGE_PREFIX}${pageId}`, JSON.stringify(placements));
-}
-
-function createId() {
-	return `pose-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function getPageRoot(rootSelector) {
-	return document.querySelector(rootSelector);
-}
-
-function clientToPage(clientX, clientY, rootSelector) {
-	const root = getPageRoot(rootSelector);
-	if (!root) {
-		return {
-			x: Math.round(clientX + window.scrollX),
-			y: Math.round(clientY + window.scrollY),
-		};
-	}
-	const rect = root.getBoundingClientRect();
-	return {
-		x: Math.round(clientX - rect.left),
-		y: Math.round(clientY - rect.top),
-	};
+function isTypingTarget(target) {
+	return target?.tagName === "INPUT" || target?.tagName === "TEXTAREA";
 }
 
 /**
- * Local-only pose placer. Gated by import.meta.env.DEV at the call site.
- * Open with ?poseEdit=1 or Ctrl+Shift+P.
+ * Local-only tool for positioning pixel-art poses on a page. It is lazy-loaded
+ * behind `import.meta.env.DEV` at every call site, so it never ships.
+ *
+ * Open it with `?poseEdit=1` or Ctrl+Shift+P, drag poses into place, then copy
+ * the JSON into a placements file for `PosePlacements` to render.
  */
-function resolvePoseAssets(assetSet) {
-	if (assetSet === "museum") {
-		return { keys: MUSEUM_POSE_KEYS, src: MUSEUM_POSE_SRC };
-	}
-	if (assetSet === "main") {
-		return { keys: MAIN_POSE_KEYS, src: MAIN_POSE_SRC };
-	}
-	return { keys: PROJECT_POSE_KEYS, src: PROJECT_POSE_SRC };
-}
-
 function DevPoseEditor({
 	pageId,
 	rootSelector = ".project-detail",
-	assetSet = "project",
+	assetSet = DEFAULT_POSE_SET,
 }) {
-	const [enabled, setEnabled] = useState(() => {
-		const params = new URLSearchParams(window.location.search);
-		return params.get("poseEdit") === "1";
-	});
+	const [enabled, setEnabled] = useState(
+		() => new URLSearchParams(window.location.search).get(URL_FLAG) === "1",
+	);
 	const [placements, setPlacements] = useState(() => loadPlacements(pageId));
 	const [selectedId, setSelectedId] = useState(null);
-	const [copied, setCopied] = useState(false);
 	const [panelHidden, setPanelHidden] = useState(false);
+	const [loadedPageId, setLoadedPageId] = useState(pageId);
 	const dragRef = useRef(null);
-	const poseAssets = useMemo(() => resolvePoseAssets(assetSet), [assetSet]);
 
-	useEffect(() => {
+	// Navigating between project pages reuses this component, so swap in the
+	// placements for the new page during render rather than after a paint.
+	if (loadedPageId !== pageId) {
+		setLoadedPageId(pageId);
 		setPlacements(loadPlacements(pageId));
 		setSelectedId(null);
-	}, [pageId]);
+	}
+
+	const poseSet = useMemo(() => getPoseSet(assetSet), [assetSet]);
+	const selected = placements.find((p) => p.id === selectedId) ?? null;
+
+	const getRoot = useCallback(
+		() => document.querySelector(rootSelector),
+		[rootSelector],
+	);
+
+	/** Converts viewport coordinates into coordinates relative to the page root. */
+	const toPagePoint = useCallback(
+		(clientX, clientY) => {
+			const rect = getRoot()?.getBoundingClientRect();
+			if (!rect) {
+				return {
+					x: Math.round(clientX + window.scrollX),
+					y: Math.round(clientY + window.scrollY),
+				};
+			}
+			return {
+				x: Math.round(clientX - rect.left),
+				y: Math.round(clientY - rect.top),
+			};
+		},
+		[getRoot],
+	);
+
+	const removeSelected = useCallback(() => {
+		setPlacements((prev) => prev.filter((p) => p.id !== selectedId));
+		setSelectedId(null);
+	}, [selectedId]);
+
+	const close = useCallback(() => {
+		setUrlFlag(false);
+		setEnabled(false);
+		setPanelHidden(false);
+	}, []);
 
 	useEffect(() => {
-		if (!enabled) return;
-		savePlacements(pageId, placements);
+		if (enabled) savePlacements(pageId, placements);
 	}, [enabled, pageId, placements]);
 
 	useEffect(() => {
-		const root = getPageRoot(rootSelector);
+		const root = getRoot();
 		if (!root) return undefined;
 		root.classList.toggle("is-pose-editing", enabled);
 		return () => root.classList.remove("is-pose-editing");
-	}, [enabled, rootSelector]);
+	}, [enabled, getRoot]);
 
 	useEffect(() => {
-		const setFlag = (next) => {
-			const url = new URL(window.location.href);
-			if (next) url.searchParams.set("poseEdit", "1");
-			else url.searchParams.delete("poseEdit");
-			window.history.replaceState({}, "", url);
-			setEnabled(next);
-		};
+		const onKeyDown = (event) => {
+			const key = event.key.toLowerCase();
+			const typing = isTypingTarget(event.target);
 
-		const onKey = (event) => {
-			const tag = event.target?.tagName;
-			const typing = tag === "INPUT" || tag === "TEXTAREA";
-
-			if (event.key === "Escape" && enabled) {
-				if (panelHidden) {
-					setPanelHidden(false);
-					return;
-				}
-				setFlag(false);
-				return;
-			}
-			if (
-				(event.ctrlKey || event.metaKey) &&
-				event.shiftKey &&
-				event.key.toLowerCase() === "p"
-			) {
+			if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === "p") {
 				event.preventDefault();
-				setFlag(!enabled);
+				setUrlFlag(!enabled);
+				setEnabled(!enabled);
 				return;
 			}
 			if (!enabled) return;
-			if (!typing && event.key.toLowerCase() === "h") {
-				event.preventDefault();
-				setPanelHidden((prev) => !prev);
+
+			if (event.key === "Escape") {
+				if (panelHidden) setPanelHidden(false);
+				else close();
 				return;
 			}
-			if ((event.key === "Delete" || event.key === "Backspace") && selectedId) {
-				if (typing) return;
+			if (typing) return;
+
+			if (key === "h") {
 				event.preventDefault();
-				setPlacements((prev) => prev.filter((p) => p.id !== selectedId));
-				setSelectedId(null);
+				setPanelHidden((prev) => !prev);
+			} else if ((event.key === "Delete" || event.key === "Backspace") && selectedId) {
+				event.preventDefault();
+				removeSelected();
 			}
 		};
-		window.addEventListener("keydown", onKey);
-		return () => window.removeEventListener("keydown", onKey);
-	}, [enabled, panelHidden, selectedId]);
 
-	const selected = useMemo(
-		() => placements.find((p) => p.id === selectedId) ?? null,
-		[placements, selectedId],
-	);
+		window.addEventListener("keydown", onKeyDown);
+		return () => window.removeEventListener("keydown", onKeyDown);
+	}, [close, enabled, panelHidden, removeSelected, selectedId]);
 
 	const addPose = (pose) => {
-		const anchor = clientToPage(120, 180, rootSelector);
-		const next = {
-			id: createId(),
+		const origin = toPagePoint(NEW_POSE_ORIGIN.x, NEW_POSE_ORIGIN.y);
+		const placement = {
+			id: createPlacementId(),
 			pose,
-			x: anchor.x + placements.length * 20,
-			y: anchor.y + placements.length * 12,
-			height: 96,
+			x: origin.x + placements.length * NEW_POSE_CASCADE.x,
+			y: origin.y + placements.length * NEW_POSE_CASCADE.y,
+			height: DEFAULT_POSE_HEIGHT,
 		};
-		setPlacements((prev) => [...prev, next]);
-		setSelectedId(next.id);
+		setPlacements((prev) => [...prev, placement]);
+		setSelectedId(placement.id);
 	};
 
 	const updateSelected = (patch) => {
-		if (!selectedId) return;
 		setPlacements((prev) =>
 			prev.map((p) => (p.id === selectedId ? { ...p, ...patch } : p)),
 		);
@@ -174,7 +160,8 @@ function DevPoseEditor({
 		event.preventDefault();
 		event.stopPropagation();
 		setSelectedId(placement.id);
-		const point = clientToPage(event.clientX, event.clientY, rootSelector);
+
+		const point = toPagePoint(event.clientX, event.clientY);
 		dragRef.current = {
 			id: placement.id,
 			offsetX: point.x - placement.x,
@@ -186,44 +173,19 @@ function DevPoseEditor({
 	const onPointerMove = (event) => {
 		const drag = dragRef.current;
 		if (!drag) return;
-		const point = clientToPage(event.clientX, event.clientY, rootSelector);
-		const x = Math.round(point.x - drag.offsetX);
-		const y = Math.round(point.y - drag.offsetY);
+
+		const point = toPagePoint(event.clientX, event.clientY);
 		setPlacements((prev) =>
-			prev.map((p) => (p.id === drag.id ? { ...p, x, y } : p)),
+			prev.map((p) =>
+				p.id === drag.id
+					? { ...p, x: point.x - drag.offsetX, y: point.y - drag.offsetY }
+					: p,
+			),
 		);
 	};
 
-	const onPointerUp = () => {
+	const endDrag = () => {
 		dragRef.current = null;
-	};
-
-	const exportPayload = (() => {
-		const root = getPageRoot(rootSelector);
-		const rect = root?.getBoundingClientRect();
-		return {
-			pageId,
-			layout: {
-				width: Math.round(root?.clientWidth || rect?.width || 0),
-				height: Math.round(root?.scrollHeight || root?.clientHeight || 0),
-				viewportWidth: window.innerWidth,
-				viewportHeight: window.innerHeight,
-				devicePixelRatio: window.devicePixelRatio || 1,
-			},
-			placements: placements.map(({ id, pose, x, y, height }) => ({
-				id,
-				pose,
-				x,
-				y,
-				height,
-			})),
-		};
-	})();
-
-	const copyExport = async () => {
-		await navigator.clipboard.writeText(JSON.stringify(exportPayload, null, 2));
-		setCopied(true);
-		window.setTimeout(() => setCopied(false), 1500);
 	};
 
 	if (!enabled) {
@@ -233,9 +195,7 @@ function DevPoseEditor({
 				className="dev-pose-fab"
 				title="Pose editor (Ctrl+Shift+P)"
 				onClick={() => {
-					const url = new URL(window.location.href);
-					url.searchParams.set("poseEdit", "1");
-					window.history.replaceState({}, "", url);
+					setUrlFlag(true);
 					setEnabled(true);
 				}}
 			>
@@ -250,7 +210,7 @@ function DevPoseEditor({
 				{placements.map((placement) => (
 					<img
 						key={placement.id}
-						src={poseAssets.src[placement.pose]}
+						src={poseSet.src[placement.pose]}
 						alt=""
 						className={`dev-pose-item${selectedId === placement.id ? " is-selected" : ""}`}
 						style={{
@@ -261,126 +221,28 @@ function DevPoseEditor({
 						draggable={false}
 						onPointerDown={(event) => onPointerDown(event, placement)}
 						onPointerMove={onPointerMove}
-						onPointerUp={onPointerUp}
-						onPointerCancel={onPointerUp}
+						onPointerUp={endDrag}
+						onPointerCancel={endDrag}
 					/>
 				))}
 			</div>
 
-			<aside className={`dev-pose-panel-ui${panelHidden ? " is-hidden" : ""}`}>
-				<header className="dev-pose-panel-ui__header">
-					<strong>Pose editor</strong>
-					<span className="dev-pose-panel-ui__hint">{pageId}</span>
-					<button
-						type="button"
-						title="Hide panel (H)"
-						onClick={() => setPanelHidden(true)}
-					>
-						Hide
-					</button>
-					<button
-						type="button"
-						onClick={() => {
-							const url = new URL(window.location.href);
-							url.searchParams.delete("poseEdit");
-							window.history.replaceState({}, "", url);
-							setEnabled(false);
-							setPanelHidden(false);
-						}}
-					>
-						Close
-					</button>
-				</header>
-
-				<p className="dev-pose-panel-ui__help">
-					Click a pose to add it, then drag. Height slider scales it. Del
-					removes. Press <kbd>H</kbd> to hide this panel while placing.
-					Positions save in localStorage for this page.
-				</p>
-
-				<div className="dev-pose-palette">
-					{poseAssets.keys.map((pose) => (
-						<button
-							key={pose}
-							type="button"
-							className="dev-pose-palette__btn"
-							onClick={() => addPose(pose)}
-							title={`Add ${pose}`}
-						>
-							<img src={poseAssets.src[pose]} alt="" />
-							<span>{pose}</span>
-						</button>
-					))}
-				</div>
-
-				{selected && (
-					<div className="dev-pose-selected">
-						<label>
-							Height
-							<input
-								type="range"
-								min="48"
-								max="220"
-								value={selected.height}
-								onChange={(event) =>
-									updateSelected({ height: Number(event.target.value) })
-								}
-							/>
-							<span>{selected.height}px</span>
-						</label>
-						<label>
-							X
-							<input
-								type="number"
-								value={selected.x}
-								onChange={(event) =>
-									updateSelected({ x: Number(event.target.value) })
-								}
-							/>
-						</label>
-						<label>
-							Y
-							<input
-								type="number"
-								value={selected.y}
-								onChange={(event) =>
-									updateSelected({ y: Number(event.target.value) })
-								}
-							/>
-						</label>
-						<button
-							type="button"
-							onClick={() => {
-								setPlacements((prev) =>
-									prev.filter((p) => p.id !== selected.id),
-								);
-								setSelectedId(null);
-							}}
-						>
-							Delete selected
-						</button>
-					</div>
-				)}
-
-				<div className="dev-pose-actions">
-					<button type="button" onClick={copyExport}>
-						{copied ? "Copied!" : "Copy JSON"}
-					</button>
-					<button
-						type="button"
-						onClick={() => {
-							setPlacements([]);
-							setSelectedId(null);
-						}}
-					>
-						Clear page
-					</button>
-				</div>
-
-				<pre className="dev-pose-export">
-					{JSON.stringify(exportPayload, null, 2)}
-				</pre>
-			</aside>
+			<PoseEditorPanel
+				pageId={pageId}
+				poseSet={poseSet}
+				selected={selected}
+				exportPayload={buildExportPayload(pageId, placements, getRoot())}
+				hidden={panelHidden}
+				onAdd={addPose}
+				onUpdateSelected={updateSelected}
+				onDeleteSelected={removeSelected}
+				onClearPage={() => {
+					setPlacements([]);
+					setSelectedId(null);
+				}}
+				onHide={() => setPanelHidden(true)}
+				onClose={close}
+			/>
 
 			{panelHidden && (
 				<button

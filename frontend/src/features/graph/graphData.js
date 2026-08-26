@@ -1,3 +1,10 @@
+/**
+ * Content for the project relationship graph.
+ *
+ * A node with a `cardId` links to that project's detail page on double-click;
+ * `concept` nodes are shared themes and have no page of their own.
+ */
+
 export const CATEGORIES = {
 	web: { color: "#7F77DD", textDark: "#26215C", label: "Web / fullstack" },
 	data: { color: "#1D9E75", textDark: "#1A4D3A", label: "Data / ML" },
@@ -5,7 +12,7 @@ export const CATEGORIES = {
 	concept: { color: "#888780", textDark: "#3A3A36", label: "Concept nodes" },
 };
 
-export const LEGEND_ITEMS = ["web", "data", "hardware", "concept"];
+export const LEGEND_ORDER = ["web", "data", "hardware", "concept"];
 
 export const graphNodes = [
 	{

@@ -1,26 +1,24 @@
-import { toParagraphs } from "../../shared/utils/projectText";
+import {
+	BulletList,
+	DetailSection,
+	DetailTable,
+	Paragraphs,
+} from "./DetailBlocks";
 
-function Paragraphs({ text, className }) {
-	return toParagraphs(text).map((paragraph, index) => (
-		<p key={`${index}-${paragraph.slice(0, 24)}`} className={className}>
-			{paragraph}
-		</p>
-	));
-}
-
-function normalizeChallenges(challenges = []) {
+/**
+ * Challenges are authored either as a plain string (a standalone note) or as a
+ * `{ title, problem, solution }` object, so they are split before rendering.
+ */
+function splitChallenges(challenges = []) {
 	const notes = [];
 	const items = [];
 
 	for (const entry of challenges) {
 		if (typeof entry === "string") {
 			notes.push(entry.trim());
-			continue;
-		}
-		if (entry && typeof entry === "object") {
+		} else if (entry && typeof entry === "object") {
 			items.push({
 				...entry,
-				problem: entry.problem,
 				solution: Array.isArray(entry.solution) ? entry.solution : [],
 			});
 		}
@@ -29,122 +27,91 @@ function normalizeChallenges(challenges = []) {
 	return { notes, items };
 }
 
-function ProjectDetailContent({ detail }) {
-	const { notes: challengeNotes, items: challengeItems } = normalizeChallenges(
-		detail.challenges,
+function Challenge({ challenge, index }) {
+	return (
+		<article className="detail-challenge">
+			<h3>
+				{index + 1}. {challenge.title}
+			</h3>
+			<div>
+				<strong>Problem:</strong>
+				<Paragraphs text={challenge.problem} />
+			</div>
+			<div>
+				<strong>Solution:</strong>
+				<BulletList items={challenge.solution} />
+			</div>
+			{challenge.codeRefs?.length > 0 && (
+				<div className="detail-code-refs">
+					<strong>Key files:</strong>
+					<ul>
+						{challenge.codeRefs.map((ref) => (
+							<li key={ref}>
+								<code>{ref}</code>
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+		</article>
 	);
+}
+
+/** Standard layout used by every project detail page except the plant tracker. */
+function ProjectDetailContent({ detail }) {
+	const { notes, items } = splitChallenges(detail.challenges);
 
 	return (
 		<>
 			<Paragraphs text={detail.pitch} className="project-detail-pitch" />
 
-			<section className="detail-section">
-				<h2>Tech stack</h2>
-				<div className="detail-table-wrap">
-					<table className="detail-table">
-						<thead>
-							<tr>
-								<th>Layer</th>
-								<th>Technologies</th>
-							</tr>
-						</thead>
-						<tbody>
-							{detail.techStack.map((row) => (
-								<tr key={row.layer}>
-									<td>{row.layer}</td>
-									<td>{row.technologies}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</section>
+			<DetailSection title="Tech stack">
+				<DetailTable
+					headers={["Layer", "Technologies"]}
+					rows={detail.techStack.map((row) => ({
+						key: row.layer,
+						cells: [row.layer, row.technologies],
+					}))}
+				/>
+			</DetailSection>
 
-			<section className="detail-section">
-				<h2>Overview</h2>
+			<DetailSection title="Overview">
 				<Paragraphs text={detail.overview} />
-			</section>
+			</DetailSection>
 
-			<section className="detail-section">
-				<h2>Problems encountered &amp; solutions</h2>
-				{challengeNotes.map((note) => (
+			<DetailSection title="Problems encountered & solutions">
+				{notes.map((note) => (
 					<p key={note.slice(0, 48)} className="detail-challenge-note">
 						{note}
 					</p>
 				))}
-				{challengeItems.map((challenge, index) => (
-					<article key={challenge.title || index} className="detail-challenge">
-						<h3>
-							{index + 1}. {challenge.title}
-						</h3>
-						<div>
-							<strong>Problem:</strong>
-							<Paragraphs text={challenge.problem} />
-						</div>
-						<div>
-							<strong>Solution:</strong>
-							<ul>
-								{challenge.solution.map((item) => (
-									<li key={item}>{item}</li>
-								))}
-							</ul>
-						</div>
-						{challenge.codeRefs?.length > 0 && (
-							<div className="detail-code-refs">
-								<strong>Key files:</strong>
-								<ul>
-									{challenge.codeRefs.map((ref) => (
-										<li key={ref}>
-											<code>{ref}</code>
-										</li>
-									))}
-								</ul>
-							</div>
-						)}
-					</article>
+				{items.map((challenge, index) => (
+					<Challenge
+						key={challenge.title ?? index}
+						challenge={challenge}
+						index={index}
+					/>
 				))}
-			</section>
+			</DetailSection>
 
-			<section className="detail-section">
-				<h2>Interesting code to highlight</h2>
-				<div className="detail-table-wrap">
-					<table className="detail-table">
-						<thead>
-							<tr>
-								<th>Topic</th>
-								<th>File</th>
-								<th>Why it&apos;s interesting</th>
-							</tr>
-						</thead>
-						<tbody>
-							{detail.codeHighlights.map((row) => (
-								<tr key={row.file}>
-									<td>{row.topic}</td>
-									<td>
-										<code>{row.file}</code>
-									</td>
-									<td>{row.why}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</section>
+			<DetailSection title="Interesting code to highlight">
+				<DetailTable
+					headers={["Topic", "File", "Why it's interesting"]}
+					rows={detail.codeHighlights.map((row) => ({
+						key: row.file,
+						cells: [row.topic, <code key={row.file}>{row.file}</code>, row.why],
+					}))}
+				/>
+			</DetailSection>
 
-			<section className="detail-section">
-				<h2>CV summary</h2>
+			<DetailSection title="CV summary">
 				<h3 className="detail-subheading">Short version</h3>
 				<p>{detail.cvShort}</p>
 				<h3 className="detail-subheading">Key challenges</h3>
-				<ul>
-					{detail.cvMedium.map((item) => (
-						<li key={item}>{item}</li>
-					))}
-				</ul>
-			</section>
+				<BulletList items={detail.cvMedium} />
+			</DetailSection>
 
-			<section className="detail-section">
-				<h2>Technologies</h2>
+			<DetailSection title="Technologies">
 				<div className="detail-tags">
 					{detail.techTags.map((tag) => (
 						<span key={tag} className="detail-tag">
@@ -152,12 +119,11 @@ function ProjectDetailContent({ detail }) {
 						</span>
 					))}
 				</div>
-			</section>
+			</DetailSection>
 
-			<section className="detail-section">
-				<h2>Lessons learned</h2>
+			<DetailSection title="Lessons learned">
 				<Paragraphs text={detail.lessonsLearned} />
-			</section>
+			</DetailSection>
 		</>
 	);
 }

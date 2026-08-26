@@ -23,10 +23,13 @@
 	right: 1rem;
 }
 
-.project-detail.is-pose-editing,
-.museum-page.is-pose-editing,
-.home-page.is-pose-editing {
+.is-pose-editing {
 	position: relative;
+}
+
+/* Hide the saved poses while editing so they cannot be mistaken for drafts. */
+.is-pose-editing .pose-placements {
+	visibility: hidden;
 }
 
 .dev-pose-layer {

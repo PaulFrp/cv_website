@@ -1,11 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+import { routes } from "./routes";
 import Navbar from "./shared/ui/Navbar";
-import Home from "./pages/Home";
-import Projects from "./pages/Projects";
-import ProjectDetail from "./pages/ProjectDetail";
-import Museum from "./pages/Museum";
-import CV from "./pages/CV";
-import "./shared/styles/App.css";
+import "./shared/styles/layout.css";
 
 function App() {
 	return (
@@ -13,11 +9,9 @@ function App() {
 			<Navbar />
 			<main className="main-content">
 				<Routes>
-					<Route path="/" element={<Home />} />
-					<Route path="/projects" element={<Projects />} />
-					<Route path="/projects/:projectId" element={<ProjectDetail />} />
-					<Route path="/museum" element={<Museum />} />
-					<Route path="/cv" element={<CV />} />
+					{routes.map(({ path, element }) => (
+						<Route key={path} path={path} element={element} />
+					))}
 				</Routes>
 			</main>
 		</div>

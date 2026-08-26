@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
+import { DevPoseEditor } from "../dev";
 import {
 	getProjectById,
 	getProjectDetail,
@@ -8,9 +8,10 @@ import {
 } from "../features/projects";
 import { getProjectDescription } from "../shared/utils/projectText";
 
-const DevPoseEditor = import.meta.env.DEV
-	? lazy(() => import("../dev/DevPoseEditor"))
-	: null;
+const DETAIL_LAYOUTS = {
+	standard: ProjectDetailContent,
+	"plant-tracker": PlantTrackerDetailContent,
+};
 
 function ProjectDetail() {
 	const { projectId } = useParams();
@@ -21,35 +22,32 @@ function ProjectDetail() {
 		return <Navigate to="/projects" replace />;
 	}
 
-	const pageTitle = detail?.displayTitle ?? project.title;
+	const DetailLayout = detail ? DETAIL_LAYOUTS[detail.layout] : null;
 
 	return (
 		<section className="page project-detail">
 			<Link to="/projects" className="back-link">
 				← Back to projects
 			</Link>
-			<h1>{pageTitle}</h1>
+			<h1>{detail?.displayTitle ?? project.title}</h1>
+
 			{!detail && project.description && (
 				<p className="project-detail-summary">
 					{getProjectDescription(project.description)}
 				</p>
 			)}
+
 			<div className="project-detail-content">
-				{detail?.type === "plant-tracker" ? (
-					<PlantTrackerDetailContent detail={detail} />
-				) : detail ? (
-					<ProjectDetailContent detail={detail} />
+				{DetailLayout ? (
+					<DetailLayout detail={detail} />
 				) : (
 					<p className="project-detail-placeholder">
 						More details coming soon.
 					</p>
 				)}
 			</div>
-			{DevPoseEditor && (
-				<Suspense fallback={null}>
-					<DevPoseEditor pageId={projectId} />
-				</Suspense>
-			)}
+
+			<DevPoseEditor pageId={projectId} />
 		</section>
 	);
 }
