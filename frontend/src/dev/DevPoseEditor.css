@@ -24,7 +24,8 @@
 }
 
 .project-detail.is-pose-editing,
-.museum-page.is-pose-editing {
+.museum-page.is-pose-editing,
+.home-page.is-pose-editing {
 	position: relative;
 }
 

@@ -7,6 +7,10 @@ import {
 	POSE_KEYS as MUSEUM_POSE_KEYS,
 	POSE_SRC as MUSEUM_POSE_SRC,
 } from "virtual:museum-pose-assets";
+import {
+	POSE_KEYS as MAIN_POSE_KEYS,
+	POSE_SRC as MAIN_POSE_SRC,
+} from "virtual:main-pose-assets";
 import "./DevPoseEditor.css";
 
 const STORAGE_PREFIX = "cv-pose-editor:";
@@ -49,11 +53,14 @@ function clientToPage(clientX, clientY, rootSelector) {
 
 /**
  * Local-only pose placer. Gated by import.meta.env.DEV at the call site.
- * Open with ?poseEdit=1 or Ctrl+Shift+P on a project detail page.
+ * Open with ?poseEdit=1 or Ctrl+Shift+P.
  */
 function resolvePoseAssets(assetSet) {
 	if (assetSet === "museum") {
 		return { keys: MUSEUM_POSE_KEYS, src: MUSEUM_POSE_SRC };
+	}
+	if (assetSet === "main") {
+		return { keys: MAIN_POSE_KEYS, src: MAIN_POSE_SRC };
 	}
 	return { keys: PROJECT_POSE_KEYS, src: PROJECT_POSE_SRC };
 }
@@ -191,16 +198,27 @@ function DevPoseEditor({
 		dragRef.current = null;
 	};
 
-	const exportPayload = {
-		pageId,
-		placements: placements.map(({ id, pose, x, y, height }) => ({
-			id,
-			pose,
-			x,
-			y,
-			height,
-		})),
-	};
+	const exportPayload = (() => {
+		const root = getPageRoot(rootSelector);
+		const rect = root?.getBoundingClientRect();
+		return {
+			pageId,
+			layout: {
+				width: Math.round(root?.clientWidth || rect?.width || 0),
+				height: Math.round(root?.scrollHeight || root?.clientHeight || 0),
+				viewportWidth: window.innerWidth,
+				viewportHeight: window.innerHeight,
+				devicePixelRatio: window.devicePixelRatio || 1,
+			},
+			placements: placements.map(({ id, pose, x, y, height }) => ({
+				id,
+				pose,
+				x,
+				y,
+				height,
+			})),
+		};
+	})();
 
 	const copyExport = async () => {
 		await navigator.clipboard.writeText(JSON.stringify(exportPayload, null, 2));
@@ -360,7 +378,7 @@ function DevPoseEditor({
 				</div>
 
 				<pre className="dev-pose-export">
-					{JSON.stringify(exportPayload.placements, null, 2)}
+					{JSON.stringify(exportPayload, null, 2)}
 				</pre>
 			</aside>
 

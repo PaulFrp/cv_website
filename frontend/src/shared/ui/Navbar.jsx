@@ -11,7 +11,7 @@ function Navbar() {
 	return (
 		<nav className="navbar">
 			<NavLink to="/" className="navbar-brand" end>
-				Paul's Website
+				Paul Frappier
 			</NavLink>
 			<ul className="navbar-links">
 				{navItems.map(({ to, label }) => (

@@ -1,0 +1,48 @@
+{
+  "pageId": "home",
+  "layout": {
+    "width": 1036,
+    "height": 920,
+    "viewportWidth": 1920,
+    "viewportHeight": 911,
+    "devicePixelRatio": 1,
+    "minWidth": 900
+  },
+  "placements": [
+    {
+      "id": "pose-mt9xndwc-cz5j3",
+      "pose": "wave",
+      "x": 356,
+      "y": 209,
+      "height": 205
+    },
+    {
+      "id": "pose-mt9xnuvl-bi427",
+      "pose": "crouching",
+      "x": -125,
+      "y": 502,
+      "height": 150
+    },
+    {
+      "id": "pose-mt9xp944-kfzra",
+      "pose": "leaning",
+      "x": 1030,
+      "y": 246,
+      "height": 150
+    },
+    {
+      "id": "pose-mt9xq6yt-gpaqr",
+      "pose": "crouch2",
+      "x": 1054,
+      "y": 762,
+      "height": 126
+    },
+    {
+      "id": "pose-mt9xs25z-y7xfo",
+      "pose": "wall-right-relax",
+      "x": -81,
+      "y": 9,
+      "height": 215
+    }
+  ]
+}

@@ -7,6 +7,8 @@ const PROJECT_VIRTUAL_ID = "virtual:pose-assets";
 const PROJECT_RESOLVED_VIRTUAL_ID = `\0${PROJECT_VIRTUAL_ID}`;
 const MUSEUM_VIRTUAL_ID = "virtual:museum-pose-assets";
 const MUSEUM_RESOLVED_VIRTUAL_ID = `\0${MUSEUM_VIRTUAL_ID}`;
+const MAIN_VIRTUAL_ID = "virtual:main-pose-assets";
+const MAIN_RESOLVED_VIRTUAL_ID = `\0${MAIN_VIRTUAL_ID}`;
 const EXHIBITS_VIRTUAL_ID = "virtual:museum-exhibits";
 const EXHIBITS_RESOLVED_VIRTUAL_ID = `\0${EXHIBITS_VIRTUAL_ID}`;
 
@@ -16,6 +18,10 @@ function projectPositionsDir() {
 
 function museumPositionsDir() {
 	return path.resolve(__dirname, "public/museum/bg_char");
+}
+
+function mainPositionsDir() {
+	return path.resolve(__dirname, "public/main_positions");
 }
 
 function exhibitFolders() {
@@ -104,13 +110,14 @@ function isUnderDir(filePath, dir) {
 	return normalizedFilePath.startsWith(normalizedDir);
 }
 
-/** Exposes every PNG in public/positions and public/museum/bg_char via virtual modules. */
+/** Exposes PNGs in public/positions, public/main_positions, and museum bg_char. */
 export function poseAssetsPlugin() {
 	return {
 		name: "pose-assets",
 		resolveId(id) {
 			if (id === PROJECT_VIRTUAL_ID) return PROJECT_RESOLVED_VIRTUAL_ID;
 			if (id === MUSEUM_VIRTUAL_ID) return MUSEUM_RESOLVED_VIRTUAL_ID;
+			if (id === MAIN_VIRTUAL_ID) return MAIN_RESOLVED_VIRTUAL_ID;
 			if (id === EXHIBITS_VIRTUAL_ID) return EXHIBITS_RESOLVED_VIRTUAL_ID;
 		},
 		load(id) {
@@ -120,6 +127,9 @@ export function poseAssetsPlugin() {
 			if (id === MUSEUM_RESOLVED_VIRTUAL_ID) {
 				return manifestModuleSource(museumPositionsDir(), "/museum/bg_char");
 			}
+			if (id === MAIN_RESOLVED_VIRTUAL_ID) {
+				return manifestModuleSource(mainPositionsDir(), "/main_positions");
+			}
 			if (id === EXHIBITS_RESOLVED_VIRTUAL_ID) {
 				return exhibitsModuleSource();
 			}
@@ -127,9 +137,11 @@ export function poseAssetsPlugin() {
 		configureServer(server) {
 			const projectDir = projectPositionsDir();
 			const museumDir = museumPositionsDir();
+			const mainDir = mainPositionsDir();
 			const exhibitDirs = exhibitFolders().map((folder) => folder.dir);
 			server.watcher.add(projectDir);
 			server.watcher.add(museumDir);
+			server.watcher.add(mainDir);
 			for (const dir of exhibitDirs) server.watcher.add(dir);
 
 			const refresh = (filePath) => {
@@ -139,6 +151,10 @@ export function poseAssetsPlugin() {
 				}
 				if (isUnderDir(filePath, museumDir)) {
 					invalidateModule(server, MUSEUM_RESOLVED_VIRTUAL_ID);
+					return;
+				}
+				if (isUnderDir(filePath, mainDir)) {
+					invalidateModule(server, MAIN_RESOLVED_VIRTUAL_ID);
 					return;
 				}
 				if (exhibitDirs.some((dir) => isUnderDir(filePath, dir))) {
