@@ -37,14 +37,11 @@ const EXHIBIT_Y_LIFT = 0.3;
 export function exhibitDrawLimits(kind, stand) {
 	if (kind === "pedestal") {
 		return stand === 15
-			? { maxW: 150, maxH: 100, yAnchor: 0.9 + EXHIBIT_Y_LIFT }
-			: { maxW: 150, maxH: 100, yAnchor: 0.9 + EXHIBIT_Y_LIFT };
+			? { maxW: 130, maxH: 85, yAnchor: 0.9 + EXHIBIT_Y_LIFT }
+			: { maxW: 130, maxH: 85, yAnchor: 0.9 + EXHIBIT_Y_LIFT };
 	}
 	if (stand === 7 || stand === 8) {
 		return { maxW: 100, maxH: 100, yAnchor: 0.55 + EXHIBIT_Y_LIFT };
-	}
-	if (stand === 10) {
-		return { maxW: 130, maxH: 120, yAnchor: 1 + EXHIBIT_Y_LIFT };
 	}
 	return { maxW: 170, maxH: 200, yAnchor: 0.82 + EXHIBIT_Y_LIFT };
 }

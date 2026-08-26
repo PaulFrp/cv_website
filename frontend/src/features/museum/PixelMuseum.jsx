@@ -22,7 +22,7 @@ const PLAYER_SPEED = 140;
 const PROXIMITY = 70;
 const WALK_CYCLE_DISTANCE = 12;
 const PLAYER_DRAW_H = 96;
-const ASSET_VER = "20260823a";
+const ASSET_VER = "20260826a";
 const MUSEUM_URL = `/museum/museum.png?v=${ASSET_VER}`;
 const OUTLINE_URL = `/museum/museum_outline.png?v=${ASSET_VER}`;
 const CHAR_STRIP_URLS = {
@@ -246,57 +246,56 @@ function assignStandNumbers(boxes, worldW) {
 	}
 
 	const sorted = [...boxes].sort((a, b) => a.y - b.y || a.x - b.x);
-
-	const top = sorted.filter((b) => b.y < 380).sort((a, b) => a.x - b.x);
-	const upperMid = sorted
-		.filter((b) => b.y >= 380 && b.y < 520)
-		.sort((a, b) => a.x - b.x);
-	const mid = sorted
-		.filter((b) => b.y >= 520 && b.y < 650)
-		.sort((a, b) => a.x - b.x);
-	const lowerMid = sorted
-		.filter((b) => b.y >= 650 && b.y < 780)
-		.sort((a, b) => a.x - b.x);
-	const bottom = sorted.filter((b) => b.y >= 780).sort((a, b) => a.x - b.x);
-
 	const byStand = new Map();
+	const taken = new Set();
 
-	if (top.length >= 4) {
-		const leftTop = top.filter((b) => b.x < worldW / 2);
-		const rightTop = top.filter((b) => b.x >= worldW / 2);
-		if (leftTop[0]) byStand.set(1, leftTop[0]);
-		if (leftTop[1]) byStand.set(2, leftTop[1]);
-		if (rightTop[0]) byStand.set(3, rightTop[0]);
-		if (rightTop[1]) byStand.set(4, rightTop[1]);
+	const claim = (stand, box) => {
+		if (!box || byStand.has(stand) || taken.has(box)) return;
+		byStand.set(stand, box);
+		taken.add(box);
+	};
+
+	const top = sorted.filter((b) => b.y < 350).sort((a, b) => a.x - b.x);
+	const leftTop = top.filter((b) => b.x < worldW / 2);
+	const rightTop = top.filter((b) => b.x >= worldW / 2);
+	claim(1, leftTop[0]);
+	claim(2, leftTop[1]);
+	claim(3, rightTop[0]);
+	claim(4, rightTop[1]);
+
+	// Upper wall / booth frames (5, 7, 8, 9)
+	const upper = sorted
+		.filter((b) => b.y >= 350 && b.y < 540)
+		.sort((a, b) => a.x - b.x);
+	for (const b of upper) {
+		if (b.x < 400) claim(5, b);
+		else if (b.x > 1000) claim(9, b);
+		else if (b.x < worldW / 2) claim(7, b);
+		else claim(8, b);
 	}
 
-	for (const b of upperMid) {
-		if (b.x < 400 && !byStand.has(5)) byStand.set(5, b);
-		else if (b.x > 1000 && !byStand.has(9)) byStand.set(9, b);
-		else if (b.x < worldW / 2 && !byStand.has(7)) byStand.set(7, b);
-		else if (!byStand.has(8)) byStand.set(8, b);
+	// Center pedestal row 11–13 (must run before side alcoves 6/10)
+	const pedestalRow = sorted
+		.filter((b) => b.y >= 560 && b.y < 720 && b.x > 450 && b.x < 950)
+		.sort((a, b) => a.x - b.x);
+	claim(11, pedestalRow[0]);
+	claim(12, pedestalRow[1]);
+	claim(13, pedestalRow[2]);
+
+	// Lower side alcoves
+	for (const b of sorted) {
+		if (b.y < 520 || b.y >= 760) continue;
+		if (b.x < 400) claim(6, b);
+		else if (b.x > 1000) claim(10, b);
 	}
 
-	for (const b of mid) {
-		if (b.x < 400 && !byStand.has(6)) byStand.set(6, b);
-		else if (b.x > 1000 && !byStand.has(10)) byStand.set(10, b);
-	}
-
-	const pedestalRow = lowerMid.length
-		? lowerMid
-		: sorted.filter((b) => b.y >= 600 && b.y < 760 && b.x > 400 && b.x < 1000);
-	const row = [...pedestalRow].sort((a, b) => a.x - b.x);
-	if (row[0]) byStand.set(11, row[0]);
-	if (row[1]) byStand.set(12, row[1]);
-	if (row[2]) byStand.set(13, row[2]);
-
+	const bottom = sorted.filter((b) => b.y >= 760).sort((a, b) => a.x - b.x);
 	for (const b of bottom) {
-		if (b.x < worldW / 2 && !byStand.has(14)) byStand.set(14, b);
-		else if (!byStand.has(15)) byStand.set(15, b);
+		if (b.x < worldW / 2) claim(14, b);
+		else claim(15, b);
 	}
 
-	const used = new Set([...byStand.values()]);
-	const unused = boxes.filter((b) => !used.has(b));
+	const unused = boxes.filter((b) => !taken.has(b));
 	for (let n = 1; n <= 15; n++) {
 		if (byStand.has(n)) continue;
 		const fb = MUSEUM_STANDS_FALLBACK.find((s) => s.stand === n);
@@ -307,8 +306,12 @@ function assignStandNumbers(boxes, worldW) {
 				if (!best || d < best.d) return { b, d };
 				return best;
 			}, null)?.b;
-		if (nearest) byStand.set(n, nearest);
-		else byStand.set(n, { x: fb.x, y: fb.y });
+		if (nearest) {
+			byStand.set(n, nearest);
+			taken.add(nearest);
+		} else {
+			byStand.set(n, { x: fb.x, y: fb.y });
+		}
 	}
 
 	return [...byStand.entries()]
@@ -356,15 +359,14 @@ function layoutExhibits(stands, catalog, exhibitAssets) {
 const PEDESTAL_BOUNCE_PX = 5;
 const PEDESTAL_BOUNCE_MS = 1800;
 
-function pedestalBounceOffset(now, stand) {
-	const phase = stand * 0.85;
-	const t = (now / PEDESTAL_BOUNCE_MS) * Math.PI * 2 + phase;
+function pedestalBounceOffset(now) {
+	const t = (now / PEDESTAL_BOUNCE_MS) * Math.PI * 2;
 	const hop = (Math.sin(t) + 1) / 2;
 	return -Math.round(hop * PEDESTAL_BOUNCE_PX);
 }
 
 function exhibitBounces(exhibit) {
-	return exhibit.kind === "pedestal" || exhibit.id === "pcb";
+	return exhibit.kind === "pedestal";
 }
 
 function drawExhibit(ctx, exhibit, now = 0) {
@@ -378,9 +380,12 @@ function drawExhibit(ctx, exhibit, now = 0) {
 	const dx = Math.round(exhibit.x - dw / 2);
 	let dy = Math.round(exhibit.y - dh * limits.yAnchor);
 	if (exhibitBounces(exhibit)) {
-		dy += pedestalBounceOffset(now, exhibit.stand);
+		dy += pedestalBounceOffset(now);
 	}
-	ctx.imageSmoothingEnabled = false;
+	// Smooth scaling keeps exhibit detail when the hi-DPI canvas is larger
+	// than the museum world size.
+	ctx.imageSmoothingEnabled = true;
+	ctx.imageSmoothingQuality = "high";
 	ctx.drawImage(
 		img,
 		bounds.sx,
@@ -392,6 +397,22 @@ function drawExhibit(ctx, exhibit, now = 0) {
 		dw,
 		dh,
 	);
+	ctx.imageSmoothingEnabled = false;
+}
+
+function syncCanvasResolution(canvas, ctx, worldEl, worldW, worldH) {
+	if (!canvas || !worldEl || !worldW || !worldH) return;
+	const cssW = worldEl.clientWidth || worldW;
+	const cssH = worldEl.clientHeight || worldH;
+	const dpr = Math.min(window.devicePixelRatio || 1, 3);
+	const bw = Math.max(1, Math.round(cssW * dpr));
+	const bh = Math.max(1, Math.round(cssH * dpr));
+	if (canvas.width !== bw || canvas.height !== bh) {
+		canvas.width = bw;
+		canvas.height = bh;
+	}
+	ctx.setTransform(bw / worldW, 0, 0, bh / worldH, 0, 0);
+	ctx.imageSmoothingEnabled = false;
 }
 
 function getStripFrame(strip, frameCount, frameIndex) {
@@ -607,9 +628,7 @@ function PixelMuseum() {
 
 			const canvas = canvasRef.current;
 			const ctx = canvas.getContext("2d");
-			canvas.width = worldW;
-			canvas.height = worldH;
-			ctx.imageSmoothingEnabled = false;
+			syncCanvasResolution(canvas, ctx, worldRef.current, worldW, worldH);
 
 			let last = performance.now();
 
@@ -679,9 +698,10 @@ function PixelMuseum() {
 					);
 				}
 
+				syncCanvasResolution(canvas, ctx, worldRef.current, w, h);
 				ctx.imageSmoothingEnabled = false;
 				ctx.clearRect(0, 0, w, h);
-				ctx.drawImage(state.bg, 0, 0);
+				ctx.drawImage(state.bg, 0, 0, w, h);
 
 				// Overlay outline hitboxes in the same pixel space as the art
 				if (state.showHitboxes && state.debugCanvas) {

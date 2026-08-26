@@ -71,14 +71,7 @@ export const projects = [
 			"It focused on a list of attributes and geolocation data.",
 		],
 	},
-	{
-		id: "maia",
-		title: "Projet Maia",
-		description: [
-			"Helped a friend on a work mission asking to find all the companies attending a talk in the sector of defence. ",
-			"Then tried to retrieve as many available public information about the company (Founders, CA, find others in the discussion with Mayo).",
-		],
-	},
+
 	{
 		id: "pokemon",
 		title: "Projet Pokémon Artefact",
