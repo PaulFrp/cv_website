@@ -4,5 +4,8 @@ __pycache__/
 .venv/
 venv/
 
-frontend/node_modules/
+node_modules/
 frontend/dist/
+
+.DS_Store
+Thumbs.db
