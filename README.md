@@ -1,4 +1,4 @@
-# Personal site — Paul Frappier
+# Personal site Paul Frappier
 
 A React single-page app with a pixel-art twist: alongside the usual project
 pages there is a walkable pixel museum and a force-directed graph of how the
@@ -46,7 +46,7 @@ heroku buildpacks:add --index 2 heroku/python --app paulcv
 git push heroku main
 ```
 
-Confirm with `heroku buildpacks --app paulcv` — nodejs must be listed above python.
+Confirm with `heroku buildpacks --app paulcv` nodejs must be listed above python.
 After a successful deploy, `heroku run bash --app paulcv` should show
 `frontend/dist/index.html`, and `/health` should return `{"status":"ok","dist":true}`.
 
@@ -106,6 +106,6 @@ them. Press `H` in the museum to see the detected walls and markers.
 lazy-loaded behind `import.meta.env.DEV`, so it never reaches production.
 
 Open it with `?poseEdit=1` or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>, drag
-poses into place, then copy the JSON it produces into a placements file — for
+poses into place, then copy the JSON it produces into a placements file for
 example `src/features/home/homePlacements.json`, which `PosePlacements` renders
 and scales to the current page width.

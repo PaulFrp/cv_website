@@ -39,8 +39,8 @@ function loadImage(url) {
 }
 
 /**
- * Loads every museum image up front. Exhibit art is optional — a missing file
- * only costs that one stand its picture — but the background and the outline
+ * Loads every museum image up front. Exhibit art is optional a missing file
+ * only costs that one stand its picture but the background and the outline
  * are required, so callers must check them before starting the render loop.
  */
 export async function loadMuseumAssets() {

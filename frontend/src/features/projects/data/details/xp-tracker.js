@@ -71,7 +71,7 @@ export const xpTrackerDetail = {
 		{
 			title: "IoT plant ingestion into the same product",
 			problem:
-				"ESP32 devices needed a reliable path into the app: authenticated posts, time-series storage, per-device thresholds, and a dashboard that shows live “needs water” plus history trends — without a separate backend.",
+				"ESP32 devices needed a reliable path into the app: authenticated posts, time-series storage, per-device thresholds, and a dashboard that shows live “needs water” plus history trends without a separate backend.",
 			solution: [
 				"API-key–protected POST /api/sensor for moisture, temperature, humidity, lux",
 				"PostgreSQL time-series storage with auto-provisioned watering thresholds",
@@ -93,7 +93,7 @@ export const xpTrackerDetail = {
 	codeHighlights: [
 		{
 			topic: "Application factory & blueprints",
-			file: "Flask app factory — 11 blueprints",
+			file: "Flask app factory 11 blueprints",
 			why: "Auth, XP, challenges, cooking, plants, etc. stay modular in one monolith",
 		},
 		{
@@ -157,6 +157,6 @@ export const xpTrackerDetail = {
 		"Separating progression logic (XP curve, streaks, challenge clock) from feature blueprints (cooking, plants) kept the monolith scalable. ",
 		"Idempotent schema bootstrap and environment-aware provisioning mattered more than a migration framework early on: ",
 		"the same raw SQL path had to work on local Postgres and managed cloud DBs. ",
-		"End-to-end ownership — UX, RPG rules, ACL modeling, IoT ingestion, and production packaging — is what turned a manga-inspired experiment into a multi-domain platform.",
+		"End-to-end ownership UX, RPG rules, ACL modeling, IoT ingestion, and production packaging is what turned a manga-inspired experiment into a multi-domain platform.",
 	]
 };

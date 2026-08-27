@@ -1,5 +1,5 @@
 export const nasDetail = {
-	displayTitle: "TNAS Homelab — Self-hosted container stack",
+	displayTitle: "TNAS Homelab Self-hosted container stack",
 	pitch: [
 		"This project shows my first steps into the world of homelabbing. For this first project, I decided to set up a NAS. ",
 		"The goal was to run different Docker compartiments for different uses like: media, downloads, reverse proxying, password management, and monitoring. ",
@@ -85,7 +85,7 @@ export const nasDetail = {
 	codeHighlights: [
 		{
 			topic: "Compose health dependency",
-			file: "docker-compose.yml — qBittorrent depends_on Gluetun",
+			file: "docker-compose.yml qBittorrent depends_on Gluetun",
 			why: "service_healthy gate prevents the boot race that crashed qBittorrent",
 		},
 		{
@@ -107,7 +107,7 @@ export const nasDetail = {
 	cvShort:
 		"Built a self-hosted TNAS homelab with Docker Compose running Jellyfin, an *arr media stack, qBittorrent behind Gluetun (Mullvad WireGuard), Caddy, Vaultwarden, and Uptime Kuma. Fixed a boot race where qBittorrent started before the VPN was healthy using Compose depends_on: condition: service_healthy. Exposed Jellyfin and Vaultwarden remotely via Tailscale (no open ports) and tuned power/sleep behavior for remote availability.",
 	cvMedium: [
-		"Stack: Docker Compose on TNAS — Jellyfin, Radarr/Sonarr, qBittorrent + Gluetun, Caddy, Vaultwarden, Uptime Kuma",
+		"Stack: Docker Compose on TNAS Jellyfin, Radarr/Sonarr, qBittorrent + Gluetun, Caddy, Vaultwarden, Uptime Kuma",
 		"Reliability: Resolved qBittorrent/Gluetun boot race with healthchecks and depends_on: condition: service_healthy",
 		"Security: Routed torrent traffic exclusively through Mullvad WireGuard; no public port exposure for apps",
 		"Remote access: Tailscale for Jellyfin and Vaultwarden, including TV client setups",
@@ -131,5 +131,5 @@ export const nasDetail = {
 		"Homelab",
 	],
 	lessonsLearned:
-		"Container orchestration is only as reliable as startup ordering and health signals. A Compose file that lists services is not enough — depends_on without a health condition still races on reboot. Pairing Gluetun healthchecks with service_healthy dependencies made the download stack survive cold boots. For remote access, Tailscale was a cleaner security model than port-forwarding: private reachability to Jellyfin and Vaultwarden without putting those services on the public internet.",
+		"Container orchestration is only as reliable as startup ordering and health signals. A Compose file that lists services is not enough depends_on without a health condition still races on reboot. Pairing Gluetun healthchecks with service_healthy dependencies made the download stack survive cold boots. For remote access, Tailscale was a cleaner security model than port-forwarding: private reachability to Jellyfin and Vaultwarden without putting those services on the public internet.",
 };

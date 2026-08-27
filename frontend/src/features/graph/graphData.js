@@ -21,7 +21,7 @@ export const graphNodes = [
 		category: "web",
 		cardId: "minigame",
 		description:
-			"Trivia, hangman, and room games like Make It Meme — grew from a small idea into a full multiplayer platform.",
+			"Trivia, hangman, and room games like Make It Meme grew from a small idea into a full multiplayer platform.",
 	},
 	{
 		id: "xp-tracker",
@@ -37,7 +37,7 @@ export const graphNodes = [
 		category: "web",
 		cardId: "maia",
 		description:
-			"Defence-sector company research — scraped public records on founders, revenue, and related entities.",
+			"Defence-sector company research scraped public records on founders, revenue, and related entities.",
 	},
 	{
 		id: "pokemon",
@@ -53,7 +53,7 @@ export const graphNodes = [
 		category: "web",
 		cardId: "obsidian-clone",
 		description:
-			"Python group project mimicking Obsidian — linked notes, subject detection, and relationship graphs.",
+			"Python group project mimicking Obsidian linked notes, subject detection, and relationship graphs.",
 	},
 	{
 		id: "ekimetrics",
@@ -85,7 +85,7 @@ export const graphNodes = [
 		category: "hardware",
 		cardId: "nas",
 		description:
-			"Self-hosted stack — Docker, Tailscale, full *arr suite, Uptime Kuma, Vault, and Bitwarden.",
+			"Self-hosted stack Docker, Tailscale, full *arr suite, Uptime Kuma, Vault, and Bitwarden.",
 	},
 	{
 		id: "esp32",
@@ -113,7 +113,7 @@ export const graphNodes = [
 		id: "llm-agents",
 		label: "LLM / AI agents",
 		category: "concept",
-		description: "Language-model agents — including deliberate hallucination and anomaly detection.",
+		description: "Language-model agents including deliberate hallucination and anomaly detection.",
 	},
 	{
 		id: "docker-infra",

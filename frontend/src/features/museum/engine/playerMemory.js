@@ -25,7 +25,7 @@ export function rememberMuseumPlayer(projectId) {
 			}),
 		);
 	} catch {
-		// Private mode / quota — restoration simply won't happen.
+		// Private mode / quota restoration simply won't happen.
 	}
 }
 

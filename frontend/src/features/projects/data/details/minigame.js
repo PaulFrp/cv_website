@@ -40,9 +40,9 @@ export const minigameDetail = {
 				"x-room-id header on every API call",
 			],
 			codeRefs: [
-				"src/roomClient.js — resolveRoomId, persistRoomId, roomHeaders, navigateToRoom",
-				"pages/make_it_meme/index.js — create/join + navigateToRoom",
-				"backend/app/routes/room.py — create_room, join_room_with_username",
+				"src/roomClient.js resolveRoomId, persistRoomId, roomHeaders, navigateToRoom",
+				"pages/make_it_meme/index.js create/join + navigateToRoom",
+				"backend/app/routes/room.py create_room, join_room_with_username",
 			],
 		},
 		{
@@ -54,16 +54,16 @@ export const minigameDetail = {
 				"Backend reads identity in this order: x-room-id → query param → signed cookie",
 			],
 			codeRefs: [
-				"backend/app/routes/general.py — header/query priority over cookie",
-				"backend/app/routes/room.py — cookie set on join",
-				"backend/app/session.py — signed session with itsdangerous",
-				"text_files/SAFARI_IOS_FIXES.md — full write-up of Safari issues",
+				"backend/app/routes/general.py header/query priority over cookie",
+				"backend/app/routes/room.py cookie set on join",
+				"backend/app/session.py signed session with itsdangerous",
+				"text_files/SAFARI_IOS_FIXES.md full write-up of Safari issues",
 			],
 		},
 		{
 			title: "WebSocket desync between players (especially iPhone)",
 			problem:
-				"Safari drops WebSocket connections when the tab is backgrounded. Players missed broadcasts and stayed stuck on an old phase until refresh—and sometimes needed two refreshes to catch up.",
+				"Safari drops WebSocket connections when the tab is backgrounded. Players missed broadcasts and stayed stuck on an old phase until refresh and sometimes needed two refreshes to catch up.",
 			solution: [
 				"Always-on HTTP polling (1s) as source of truth",
 				"WebSocket for low-latency actions + server broadcasts",
@@ -73,10 +73,10 @@ export const minigameDetail = {
 				"HTTP fallback for caption submission when WS is down",
 			],
 			codeRefs: [
-				"pages/make_it_meme/room.js — WS connect/reconnect, HTTP poll, onPageVisible",
-				"src/roomClient.js — fetchGameStatus, onPageVisible",
-				"backend/app/routes/websockets.py — keepalive ping task",
-				"backend/app/routes/meme.py — HTTP caption fallback endpoint",
+				"pages/make_it_meme/room.js WS connect/reconnect, HTTP poll, onPageVisible",
+				"src/roomClient.js fetchGameStatus, onPageVisible",
+				"backend/app/routes/websockets.py keepalive ping task",
+				"backend/app/routes/meme.py HTTP caption fallback endpoint",
 			],
 		},
 		{
@@ -84,19 +84,19 @@ export const minigameDetail = {
 			problem:
 				"Phase transitions (captioning → voting → results) were originally triggered by whichever client polled first, causing race conditions. Timers drifted client-side. Early voting didn’t advance the game. After refresh, stale WebSocket frames could roll the UI backward (e.g. voting → captioning).",
 			solution: [
-				"Centralized background timer (meme_timer.py) — single server loop checks every 1s",
-				"try_advance_from_captioning() / try_advance_from_voting() — atomic transitions + broadcast",
+				"Centralized background timer (meme_timer.py) single server loop checks every 1s",
+				"try_advance_from_captioning() / try_advance_from_voting() atomic transitions + broadcast",
 				"Server-synced timer via phase_epoch / start_time + client-side countdown from last server remaining",
 				"Fresh SQLAlchemy session per WebSocket message (avoid stale ORM reads)",
-				"shouldIgnoreMemeGameUpdate() — reject regressive WS updates",
+				"shouldIgnoreMemeGameUpdate() reject regressive WS updates",
 				"HTTP trusted over WS for state; burst poll on mount after refresh",
 			],
 			codeRefs: [
-				"backend/app/game/meme_timer.py — timer loop, phase advance, abstain logic",
-				"backend/app/routes/websockets.py — SessionLocal() per message",
-				"src/roomClient.js — shouldIgnoreMemeGameUpdate",
-				"pages/make_it_meme/room.js — applyGameUpdate, syncRemainingFromServer",
-				"text_files/DESYNC_FIX.md — architecture before/after diagram",
+				"backend/app/game/meme_timer.py timer loop, phase advance, abstain logic",
+				"backend/app/routes/websockets.py SessionLocal() per message",
+				"src/roomClient.js shouldIgnoreMemeGameUpdate",
+				"pages/make_it_meme/room.js applyGameUpdate, syncRemainingFromServer",
+				"text_files/DESYNC_FIX.md architecture before/after diagram",
 			],
 		},
 		{
@@ -107,7 +107,7 @@ export const minigameDetail = {
 				"Store user_ids in game snapshot at start; player_user_ids() helper resolves consistently",
 			],
 			codeRefs: [
-				"backend/app/game/meme_timer.py — player_user_ids, all_players_voted",
+				"backend/app/game/meme_timer.py player_user_ids, all_players_voted",
 			],
 		},
 		{
@@ -120,9 +120,9 @@ export const minigameDetail = {
 				"Results screen: normalized submissions shape on frontend",
 			],
 			codeRefs: [
-				"backend/app/game/meme_timer.py — should_skip_voting, ABSTAIN",
-				"pages/make_it_meme/room.js — normalizeSubmissions, results UI",
-				"pages/make_it_meme/memecanvas.js — meme + caption slot rendering",
+				"backend/app/game/meme_timer.py should_skip_voting, ABSTAIN",
+				"pages/make_it_meme/room.js normalizeSubmissions, results UI",
+				"pages/make_it_meme/memecanvas.js meme + caption slot rendering",
 			],
 		},
 	],
