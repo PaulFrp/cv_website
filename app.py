@@ -7,9 +7,10 @@ routing keeps working on a hard refresh or a shared link.
 
 import os
 
-from flask import Flask, send_from_directory
+from flask import Flask, abort, send_from_directory
 
 DIST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "dist")
+INDEX_HTML = os.path.join(DIST_DIR, "index.html")
 
 # Vite fingerprints everything it writes to /assets, so those files never change
 # under the same name and can be cached indefinitely.
@@ -21,12 +22,23 @@ app = Flask(__name__, static_folder=DIST_DIR, static_url_path="")
 
 @app.route("/health")
 def health():
-	return {"status": "ok"}
+	built = os.path.isfile(INDEX_HTML)
+	payload = {"status": "ok" if built else "missing_frontend", "dist": built}
+	return payload, 200 if built else 503
 
 
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve(path):
+	if not os.path.isfile(INDEX_HTML):
+		abort(
+			503,
+			description=(
+				"frontend/dist is missing. On Heroku the Node.js buildpack must "
+				"run before Python so heroku-postbuild can create it."
+			),
+		)
+
 	if path and os.path.isfile(os.path.join(DIST_DIR, path)):
 		response = send_from_directory(DIST_DIR, path)
 		if path.startswith(IMMUTABLE_PREFIX):

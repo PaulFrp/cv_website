@@ -34,9 +34,25 @@ The server only ever reads `frontend/dist`, so run `npm run build` in
 
 ## Deployment
 
-Heroku-style: `heroku-postbuild` in the root `package.json` builds the frontend,
-and the `Procfile` runs `gunicorn app:app`. `app.py` serves the built assets and
-falls back to `index.html` so client-side routes survive a refresh.
+This app needs **both** Heroku buildpacks, **Node first**, then Python:
+
+1. Node runs `heroku-postbuild` → builds `frontend/dist`
+2. Python installs Flask/gunicorn and runs `Procfile`
+
+```bash
+heroku buildpacks:clear --app paulcv
+heroku buildpacks:add --index 1 heroku/nodejs --app paulcv
+heroku buildpacks:add --index 2 heroku/python --app paulcv
+git push heroku main
+```
+
+Confirm with `heroku buildpacks --app paulcv` — nodejs must be listed above python.
+After a successful deploy, `heroku run bash --app paulcv` should show
+`frontend/dist/index.html`, and `/health` should return `{"status":"ok","dist":true}`.
+
+`frontend/dist` is gitignored on purpose; production always builds it on the
+dyno. The postbuild script uses `npm ci --include=dev` so Vite (a
+devDependency) is still available when Heroku sets `NODE_ENV=production`.
 
 ## Project layout
 

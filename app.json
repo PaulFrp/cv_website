@@ -1,0 +1,13 @@
+{
+  "name": "paulcv",
+  "description": "Paul Frappier's personal site — Flask + Vite React SPA",
+  "repository": "https://github.com/paulf/cv-website",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
