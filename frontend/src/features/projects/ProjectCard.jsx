@@ -5,7 +5,14 @@ import { getProjectDescription } from "../../shared/utils/projectText";
  * Project summary tile. Renders as a link when `to` is given, and as a plain
  * card otherwise (used for planned projects that have no page yet).
  */
-function ProjectCard({ project, to, id, headingLevel: Heading = "h3", className = "" }) {
+function ProjectCard({
+	project,
+	to,
+	id,
+	linkState,
+	headingLevel: Heading = "h3",
+	className = "",
+}) {
 	const classes = ["project-card", className].filter(Boolean).join(" ");
 
 	const body = (
@@ -24,7 +31,12 @@ function ProjectCard({ project, to, id, headingLevel: Heading = "h3", className 
 	}
 
 	return (
-		<Link to={to} id={id} className={`${classes} project-card-link`}>
+		<Link
+			to={to}
+			id={id}
+			state={linkState}
+			className={`${classes} project-card-link`}
+		>
 			{body}
 		</Link>
 	);

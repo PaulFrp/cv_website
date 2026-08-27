@@ -4,6 +4,7 @@ import {
 	DetailTable,
 	Paragraphs,
 } from "./DetailBlocks";
+import PhotoCarousel from "./PhotoCarousel";
 
 /**
  * Challenges are authored either as a plain string (a standalone note) or as a
@@ -37,10 +38,12 @@ function Challenge({ challenge, index }) {
 				<strong>Problem:</strong>
 				<Paragraphs text={challenge.problem} />
 			</div>
-			<div>
-				<strong>Solution:</strong>
-				<BulletList items={challenge.solution} />
-			</div>
+			{challenge.solution.length > 0 && (
+				<div>
+					<strong>Solution:</strong>
+					<BulletList items={challenge.solution} />
+				</div>
+			)}
 			{challenge.codeRefs?.length > 0 && (
 				<div className="detail-code-refs">
 					<strong>Key files:</strong>
@@ -60,6 +63,8 @@ function Challenge({ challenge, index }) {
 /** Standard layout used by every project detail page except the plant tracker. */
 function ProjectDetailContent({ detail }) {
 	const { notes, items } = splitChallenges(detail.challenges);
+	const photos = detail.photos ?? [];
+	const codeHighlights = detail.codeHighlights ?? [];
 
 	return (
 		<>
@@ -79,6 +84,12 @@ function ProjectDetailContent({ detail }) {
 				<Paragraphs text={detail.overview} />
 			</DetailSection>
 
+			{photos.length > 0 && (
+				<DetailSection title="Build photos">
+					<PhotoCarousel photos={photos} label="Project photos" />
+				</DetailSection>
+			)}
+
 			<DetailSection title="Problems encountered & solutions">
 				{notes.map((note) => (
 					<p key={note.slice(0, 48)} className="detail-challenge-note">
@@ -94,36 +105,27 @@ function ProjectDetailContent({ detail }) {
 				))}
 			</DetailSection>
 
-			<DetailSection title="Interesting code to highlight">
-				<DetailTable
-					headers={["Topic", "File", "Why it's interesting"]}
-					rows={detail.codeHighlights.map((row) => ({
-						key: row.file,
-						cells: [row.topic, <code key={row.file}>{row.file}</code>, row.why],
-					}))}
-				/>
-			</DetailSection>
+			{codeHighlights.length > 0 && (
+				<DetailSection title="Interesting code to highlight">
+					<DetailTable
+						headers={["Topic", "File", "Why it's interesting"]}
+						rows={codeHighlights.map((row) => ({
+							key: row.file,
+							cells: [
+								row.topic,
+								<code key={row.file}>{row.file}</code>,
+								row.why,
+							],
+						}))}
+					/>
+				</DetailSection>
+			)}
 
-			<DetailSection title="CV summary">
-				<h3 className="detail-subheading">Short version</h3>
-				<p>{detail.cvShort}</p>
-				<h3 className="detail-subheading">Key challenges</h3>
-				<BulletList items={detail.cvMedium} />
-			</DetailSection>
-
-			<DetailSection title="Technologies">
-				<div className="detail-tags">
-					{detail.techTags.map((tag) => (
-						<span key={tag} className="detail-tag">
-							{tag}
-						</span>
-					))}
-				</div>
-			</DetailSection>
-
-			<DetailSection title="Lessons learned">
-				<Paragraphs text={detail.lessonsLearned} />
-			</DetailSection>
+			{detail.lessonsLearned && (
+				<DetailSection title="Conclusion">
+					<Paragraphs text={detail.lessonsLearned} />
+				</DetailSection>
+			)}
 		</>
 	);
 }

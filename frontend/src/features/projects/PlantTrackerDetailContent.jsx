@@ -98,9 +98,6 @@ function PlantTrackerDetailContent({ detail }) {
 			<DetailSection title="Firmware">
 				<p>{firmware.intro}</p>
 				<BulletList items={firmware.decisions} />
-				<pre className="detail-code-block">
-					<code>{firmware.code}</code>
-				</pre>
 				<Paragraphs text={firmware.afterCode} />
 				<p className="detail-gap">{firmware.gap}</p>
 			</DetailSection>
@@ -111,10 +108,6 @@ function PlantTrackerDetailContent({ detail }) {
 					label="Hardware assembly photos"
 				/>
 				<AssemblyNotes notes={hardwareAssembly.solderingLessons} />
-				<AssemblyNotes
-					notes={hardwareAssembly.expansionShield}
-					lesson={hardwareAssembly.expansionShield.lesson}
-				/>
 			</DetailSection>
 
 			<DetailSection title="What I would do differently">
@@ -129,9 +122,6 @@ function PlantTrackerDetailContent({ detail }) {
 				<BulletList items={detail.nextSteps} />
 			</DetailSection>
 
-			<DetailSection title="Skills demonstrated">
-				<BulletList items={detail.skillsDemonstrated} />
-			</DetailSection>
 		</>
 	);
 }

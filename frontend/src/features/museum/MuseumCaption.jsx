@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { rememberMuseumPlayer } from "./engine/playerMemory";
 
 /** The plaque under the museum that describes whichever stand the player is at. */
 function MuseumCaption({ caption, showHitboxes }) {
@@ -17,9 +18,11 @@ function MuseumCaption({ caption, showHitboxes }) {
 					{caption.hasPage ? (
 						<Link
 							to={`/projects/${caption.id}`}
+							state={{ from: "museum" }}
 							className="pixel-museum-label-link"
+							onClick={() => rememberMuseumPlayer(caption.id)}
 						>
-							View details →
+							View details → <kbd>Enter</kbd>
 						</Link>
 					) : (
 						<span className="pixel-museum-label-blurb">Planned project</span>

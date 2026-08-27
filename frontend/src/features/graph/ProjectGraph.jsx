@@ -171,7 +171,9 @@ function ProjectGraph() {
 				const isDoubleClick =
 					lastClick.id === node.id && now - lastClick.time < DOUBLE_CLICK_MS;
 
-				if (isDoubleClick && node.cardId) navigate(`/projects/${node.cardId}`);
+				if (isDoubleClick && node.cardId) {
+					navigate(`/projects/${node.cardId}`, { state: { from: "projects" } });
+				}
 				lastClick = isDoubleClick ? { id: null, time: 0 } : { id: node.id, time: now };
 			}
 

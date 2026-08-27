@@ -198,6 +198,17 @@
 	white-space: nowrap;
 }
 
+.pixel-museum-label-link kbd {
+	display: inline-block;
+	margin-left: 0.25rem;
+	padding: 0.05rem 0.3rem;
+	border: 1px solid #7a6a58;
+	border-radius: 3px;
+	background: #2a2520;
+	font: 0.7rem/1.2 ui-monospace, monospace;
+	text-decoration: none;
+}
+
 .pixel-museum-label-link:hover {
 	color: #fff;
 }

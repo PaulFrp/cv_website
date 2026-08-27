@@ -17,7 +17,7 @@ export const projects = [
 	},
 	{
 		id: "esp32",
-		title: "ESP32 automatic turn on and off",
+		title: "ESP32 automatic Dashboard",
 		description:
 			"Turned an old touch screen into an autonomous dashboard to display my habit and cooking website.",
 	},
@@ -73,12 +73,10 @@ export const projects = [
 	},
 
 	{
-		id: "pokemon",
-		title: "Projet Pokémon Artefact",
+		id: "webscrapping",
+		title: "Webscrapping",
 		description: [
-			"Extracting comments and discussions on forums to establish what the fans are interested in mostly, ",
-			"created visualizations such as word clouds to see the most preeminent ones. Had to find a way to exclude repeating words like “the” “me” etc. ",
-			"If remember correctly I used a library of the common words Electronics.",
+			"A combination of many webscrapping projects that are too small to have a dedicated project page each. ",
 		],
 	},
 ];

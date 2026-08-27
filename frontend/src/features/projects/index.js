@@ -11,3 +11,4 @@ export {
 	projects,
 } from "./data/projects";
 export { getProjectDetail } from "./data/details";
+export { getProjectPlacements } from "./data/placements";

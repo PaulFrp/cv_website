@@ -163,28 +163,5 @@ export const minigameDetail = {
 			why: "Background task emptying stale rooms",
 		},
 	],
-	cvShort:
-		"Developed a real-time multiplayer party-game platform (Next.js + FastAPI + WebSockets + PostgreSQL) supporting multiple games in shared rooms. Solved cross-device sync issues on mobile Safari by combining URL-based room persistence, header-based auth fallback, HTTP polling + WebSocket hybrid sync, and server-side phase timers. Deployed on Heroku with CORS and keepalive handling for production WebSocket stability.",
-	cvMedium: [
-		"Session & rooms: Replaced cookie-only room tracking with URL params + x-client-id / x-room-id headers for Safari ITP compatibility",
-		"Real-time sync: Hybrid WebSocket + HTTP polling; auto-reconnect; tab visibility resync; stale update rejection with phase_epoch",
-		"Game state: Moved phase transitions to centralized asyncio timers to eliminate client-side race conditions",
-		"Mobile: Full-page navigation, per-game room storage, connection status UI, HTTP fallbacks for critical actions",
-		"Data model: SQLAlchemy game state persisted in DB; JSON fields for captions, votes, submissions per room",
-	],
-	techTags: [
-		"Next.js",
-		"React",
-		"FastAPI",
-		"WebSockets",
-		"SQLAlchemy",
-		"PostgreSQL",
-		"asyncio",
-		"REST API",
-		"Real-time multiplayer",
-		"Heroku",
-		"Mobile web (Safari/iOS)",
-	],
-	lessonsLearned:
-		"Building real-time games on the web taught me that WebSockets alone are not enough on mobile: you need idempotent HTTP fallbacks, monotonic state versioning, and session identifiers that don’t depend on cookies. The most valuable abstraction was extracting room/session logic into roomClient.js and phase logic into server-side timers rather than duplicating it per game page.",
+
 };

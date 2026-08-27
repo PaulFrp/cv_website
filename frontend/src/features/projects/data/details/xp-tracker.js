@@ -1,34 +1,12 @@
 export const xpTrackerDetail = {
 	displayTitle: "XP Tracker",
 	pitch:[
-		"A full-stack website made to imrpove and keep track of personal productivity. To make it more fun it is gamified with: 16 skills, daily challenges, badges and titles. ",
-		"Although not in the scope in the beginning I decided to add a collaborative recipe manager and a dashboard for my plant-sensors. ",
-		"This rescope decision was made when I turned an old touch screen into a dashboard that would automatically turn on in the morning and display this site.",
+		"A full-stack website made to imrpove and keep track of personal productivity. To make it more fun it is gamified with: 16 skills, daily challenges, badges and titles. Although not in the scope in the beginning I decided to add a collaborative recipe manager and a dashboard for my plant-sensors. This rescope decision was made when I turned an old touch screen into a dashboard that would automatically turn on in the morning and display this site.",
 	],
 	overview:[
-		"XP Tracker crossed my mind after watching a manga which had pretty much the same basis.",
-		"Users level up across 16 skills in four categories: Physical (Strength, Endurance, Mobility, Speed), ",
-		"Mental (Intelligence, Concentration, Logic, Creativity), Lifestyle (Dexterity, Vitality, Recovery, Affection), ",
-		"and Meta (Discipline, Planning, Reflection, Good deeds). The user then records workouts or everything done during the day and earn XP. ",
-		"I also added a rotating set of daily challenges but decided to go back against it and have set daily challenges. When progressing, you then unlock badges and skill titles every 10 levels. ",
-		"Inspired by strava I wanted to add a more social experience. I decided to make public profiles that your friends could see and where you can display your badges and titles. ",
-		"In the same idea I added a public page leaderboard that ranks every participants by average skill level. ",
-		"I debated a lot over the experience progression formula. I tried to get inspired by games that have similar progression features and finally settled for triangular XP curve (80 + 12 × L × (L+1) / 2) ",
-		"Beyond the first idea of gamification, the app now expands into two other products.",
-		"First implemented is cooking / recipe page that acts like a Google drive. Features are: shared collections (owner / view / edit ACLs), recipe CRUD, recipe tagging and difficulty/time/cost filters, creator attribution, and upsert-based share management. ", // Pas sur de ce que veut dire la dernière phrase. 
-		"The second one to be implemented is a plant humidity & environment dashboard that ingests live ESP32 sensor data (See Plant tracker project) ", //Verify the name of the other proejct
-		"through an API-key POST to the /api/sensor endpoint, it stores time-series readings in PostgreSQL, ",
-		"and it shows watering thresholds for connected devices, ",
-		"and visualizes history with Chart.js. ",
-		"This whole website is organized with 11 blueprints (auth, dashboard, XP, challenges, cards, badges, titles, leaderboard, profiles, cooking, plants), ",
-		"Jinja2 templates with custom CSS and vanilla JS (plus Tailwind on auth pages), ",
-		"PostgreSQL via psycopg2 with raw SQL and an idempotent schema bootstrap (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS). ", //idempotent ? 
-		"It was also important to find a modular way to make it work both locally and on managed cloud DBs without having different branches or code to change when testing or deploying. ",
-		"AS I have always deployed my websites using Heroku I am familiar and the solution was to use Gunicorn and a Heroku Procfile. ",
-		"To avoid any problems I created environment-aware DB meaning that it skips provisioning on Heroku deployment, I also added ",
-		"DISTINCT ON queries for latest-per-device sensor state, JSON-driven badge/title content paired with AI generated artwork, ",
-		"and a clean separation between game logic (stats, streaks, challenge resets via a global config clock) and feature modules ",
-		"so the project scales from personal habit tracking into multi-user collaboration and hardware-backed monitoring.",
+		"XP Tracker crossed my mind after watching a manga which had pretty much the same basis. Users level up across 16 skills in four categories: Physical, Mental, Lifestyle, and Meta attributes like Discipline, Planning, Reflection, and Good deeds. The user then records workouts or everything done during the day and earns XP. When progressing, you then unlock badges and skill titles every 10 levels.",
+		"Inspired by strava I wanted to add a more social experience. I decided to make public profiles that your friends could see and where you can display your badges and titles. In the same idea I added a public page leaderboard that ranks every participants by average skill level. ",
+		"Beyond the first idea of gamification, the app now expands into two other products. First implemented is cooking / recipe page that acts like a Google drive. The second one to be implemented is a plant humidity & environment dashboard that ingests live ESP32 sensor data (See Plant tracker project) through an API-key POST to the /api/sensor endpoint, it stores time-series readings in PostgreSQL, ",
 	],
 		techStack: [
 		{

@@ -203,3 +203,44 @@ export function findSpawn(walkable, width, height) {
 
 	return { ...SPAWN_POINT };
 }
+
+/**
+ * Finds a walkable tile near a stand. Prefers positions south of the marker
+ * (toward the museum entrance) so the player faces the exhibit on return.
+ */
+export function findSpawnNear(target, walkable, width, height) {
+	const offsets = [
+		[0, 48],
+		[0, 72],
+		[0, 32],
+		[0, 96],
+		[-32, 48],
+		[32, 48],
+		[-48, 64],
+		[48, 64],
+		[0, 16],
+		[-24, 24],
+		[24, 24],
+		[0, -24],
+		[-40, 0],
+		[40, 0],
+	];
+
+	for (const [dx, dy] of offsets) {
+		const x = Math.round(target.x + dx);
+		const y = Math.round(target.y + dy);
+		if (isWalkable(walkable, width, height, x, y)) return { x, y };
+	}
+
+	const steps = 16;
+	for (let radius = 8; radius < 120; radius += 8) {
+		for (let step = 0; step < steps; step++) {
+			const angle = (step / steps) * Math.PI * 2;
+			const x = Math.round(target.x + Math.cos(angle) * radius);
+			const y = Math.round(target.y + Math.sin(angle) * radius);
+			if (isWalkable(walkable, width, height, x, y)) return { x, y };
+		}
+	}
+
+	return null;
+}

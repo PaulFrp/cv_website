@@ -19,6 +19,7 @@ function Projects() {
 						id={`project-${project.id}`}
 						project={project}
 						to={`/projects/${project.id}`}
+						linkState={{ from: "projects" }}
 						headingLevel="h2"
 					/>
 				))}

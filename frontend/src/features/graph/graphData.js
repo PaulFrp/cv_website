@@ -89,10 +89,11 @@ export const graphNodes = [
 	},
 	{
 		id: "esp32",
-		label: "ESP32 auto switch",
+		label: "ESP32 dashboard",
 		category: "hardware",
 		cardId: "esp32",
-		description: "Automatic on/off controller built on ESP32 — with some soldering lessons along the way.",
+		description:
+			"Repurposed Surface + ESP32 servo that wakes a habit/cooking dashboard on a schedule.",
 	},
 	{
 		id: "plant-tracker",

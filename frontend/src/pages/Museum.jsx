@@ -7,7 +7,8 @@ function Museum() {
 			<h1>Project museum</h1>
 			<p className="museum-help">
 				Walk with WASD or the arrow keys. Get close to a stand to read about a
-				project. Press H to toggle the collision overlay.
+				project, then press Enter to open it. Press H to toggle the collision
+				overlay.
 			</p>
 
 			<PixelMuseum />

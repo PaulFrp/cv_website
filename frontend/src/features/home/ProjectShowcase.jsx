@@ -14,6 +14,7 @@ function ProjectShowcase({ title, projects, linkToDetails = false }) {
 						key={project.id}
 						project={project}
 						to={linkToDetails ? `/projects/${project.id}` : undefined}
+						linkState={linkToDetails ? { from: "home" } : undefined}
 					/>
 				))}
 			</div>

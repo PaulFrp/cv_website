@@ -13,8 +13,8 @@ export const MOVEMENT_KEYS = {
 	d: "right",
 };
 
-export function createPlayer({ x, y }) {
-	return { x, y, facing: "up", step: 0, distanceWalked: 0 };
+export function createPlayer({ x, y, facing = "up" }) {
+	return { x, y, facing, step: 0, distanceWalked: 0 };
 }
 
 /** Turns the set of held directions into a normalised movement vector. */

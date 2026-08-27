@@ -10,9 +10,9 @@ import Projects from "./pages/Projects";
  */
 export const routes = [
 	{ path: "/", label: "Home", element: <Home /> },
+	{ path: "/museum", label: "Museum", element: <Museum /> },
 	{ path: "/projects", label: "Projects", element: <Projects /> },
 	{ path: "/projects/:projectId", element: <ProjectDetail /> },
-	{ path: "/museum", label: "Museum", element: <Museum /> },
 	{ path: "/cv", label: "CV", element: <CV /> },
 ];
 

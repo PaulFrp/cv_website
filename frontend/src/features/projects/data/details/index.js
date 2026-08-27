@@ -1,3 +1,4 @@
+import { esp32Detail } from "./esp32";
 import { minigameDetail } from "./minigame";
 import { nasDetail } from "./nas";
 import { plantTrackerDetail } from "./plant-tracker";
@@ -8,6 +9,7 @@ import { xpTrackerDetail } from "./xp-tracker";
  * `layout` picks which component renders the detail page.
  */
 const projectDetails = {
+	esp32: { ...esp32Detail, layout: "standard" },
 	minigame: { ...minigameDetail, layout: "standard" },
 	nas: { ...nasDetail, layout: "standard" },
 	"xp-tracker": { ...xpTrackerDetail, layout: "standard" },

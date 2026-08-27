@@ -45,6 +45,15 @@
 
 /* —— Detail page shell —— */
 
+.project-detail {
+	position: relative;
+	overflow: visible;
+}
+
+.main-content:has(.project-detail) {
+	overflow: visible;
+}
+
 .back-link {
 	display: inline-block;
 	margin-bottom: 1rem;

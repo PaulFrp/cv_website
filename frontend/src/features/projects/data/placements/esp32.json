@@ -1,0 +1,48 @@
+{
+  "pageId": "esp32",
+  "layout": {
+    "width": 896,
+    "height": 2483,
+    "viewportWidth": 1920,
+    "viewportHeight": 911,
+    "devicePixelRatio": 1,
+    "minWidth": 800
+  },
+  "placements": [
+    {
+      "id": "pose-mtbboftf-gy4fa",
+      "pose": "sitting",
+      "x": 833,
+      "y": 164,
+      "height": 201
+    },
+    {
+      "id": "pose-mtbbpha6-ctjom",
+      "pose": "wall-right",
+      "x": -66,
+      "y": 1630,
+      "height": 189
+    },
+    {
+      "id": "pose-mtbbsbnb-t3ny0",
+      "pose": "soldering",
+      "x": -140,
+      "y": 927,
+      "height": 162
+    },
+    {
+      "id": "pose-mtbbsi8d-ifhi8",
+      "pose": "wiring",
+      "x": 916,
+      "y": 938,
+      "height": 177
+    },
+    {
+      "id": "pose-mtbbt26x-m988c",
+      "pose": "straight",
+      "x": 937,
+      "y": 2311,
+      "height": 173
+    }
+  ]
+}
