@@ -11,7 +11,7 @@ export const projects = [
 		id: "plant-tracker",
 		title: "Plant health tracker",
 		description: [
-			"A comprehensive project that I started as a way to reconciliate all of the different skills I had been learning over the years ",
+			"A complete project with hardware and software that I started to put together all of the different skills I have learned over the years ",
 			"(Programming, electronics, soldering, 3D-printing). ",
 		],
 	},
@@ -34,8 +34,8 @@ export const projects = [
 		id: "xp-tracker",
 		title: "Xp-tracker",
 		description: [
-			"Another small website in the beginning meant to track and reward habits building. ",
-			"It was later incremented with a collaborative cooking Drive and an ESP32 plant-sensor dashboard.",
+			"A small website in the beginning meant to track and reward healthy habits. ",
+			"It was later improved with the addition of a cooking drive and an ESP32 plant tracking dashboard.",
 		],
 	},
 	{
@@ -87,13 +87,13 @@ export const futureProjects = [
 		id: "pcb",
 		title: "PCB design learning",
 		description:
-			"In the aim of making circuits more replicable and smaller size I would like to be able to design my own PCBs.",
+			"In the aim of making circuits more replicable and smaller size I need to learn how to design my own PCBs.",
 	},
 	{
 		id: "backtesting",
 		title: "Markets backtesting",
 		description:
-			"In order to learn more about Quant finance I would like to have comprehensive projects.",
+			"To learn more about Quant finance, I would like to have a complete project on the subject.",
 	},
 	{
 		id: "ci-cd",

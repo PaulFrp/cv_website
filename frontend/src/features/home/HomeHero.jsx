@@ -13,8 +13,7 @@ function HomeHero() {
 			<div className="home-hero-copy">
 				<p className="home-brand">Paul Frappier</p>
 				<p className="home-lede">
-					Data scientist and builder at CentraleSupélec — analytics, generative
-					AI, full-stack apps, and tinkering with printers and ESP32 boards.
+					Data scientist and builder at CentraleSupélec. Focus on Data, Finance, and creating with 3D printers and ESP32/arduino boards.
 				</p>
 				<div className="home-ctas">
 					{CALLS_TO_ACTION.map(({ to, label, primary }) => (

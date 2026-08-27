@@ -249,16 +249,25 @@
 		display: flex;
 	}
 
+	/* Side decorations steal space and stack over the D-pad on phones. */
+	.museum-figures {
+		display: none;
+	}
+
 	.main-content:has(.museum-page) {
 		padding: 0.5rem 0.5rem 1rem;
 	}
 
 	.pixel-museum-board {
-		--museum-width: min(calc(100vw - 7.5rem), calc((100vh - 260px) * 1.875));
-		--museum-height: min(calc(var(--museum-width) * 1122 / 1402), calc(100vh - 300px));
+		--museum-width: min(calc(100vw - 1.5rem), calc((100vh - 280px) * 1.875));
+		--museum-height: min(calc(var(--museum-width) * 1122 / 1402), calc(100vh - 320px));
 
-		grid-template-columns: minmax(3.2rem, 1fr) auto minmax(3.2rem, 1fr);
-		column-gap: 0.3rem;
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"stage"
+			"caption";
+		justify-items: center;
+		column-gap: 0;
 	}
 
 	.pixel-museum-caption {
